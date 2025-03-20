@@ -27,19 +27,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function fetchResponse(message) {
         fetch("https://ki-chatbot-13ko.onrender.com/chat", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ message })
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ message }),
         })
-        .then(response => {
-            if (!response.ok) throw new Error("Fehler beim Verbinden zum Bot");
-            return response.json();
-        })
-        .then(data => {
+          .then((res) => res.json())
+          .then((data) => {
             addMessage(data.response, "bot");
-        })
-        .catch(() => {
-            addMessage("Leider ist etwas schiefgelaufen. Versuche es später erneut.", "bot");
-        });
-    }
+          })
+          .catch((error) => {
+            console.error("Fehler beim Abrufen der Antwort:", error);
+            addMessage("Fehler bei der Verbindung zum Bot.", "bot");
+          });
+      }      
 });
