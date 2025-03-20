@@ -4,12 +4,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const chatBody = document.getElementById("chat-body");
     const chatInput = document.getElementById("chat-input");
   
-    // Toggle-Funktion
     chatToggle.onclick = () => {
       chatWindow.style.display = chatWindow.style.display === "none" ? "flex" : "none";
     };
   
-    // Nachrichten senden
     chatInput.addEventListener("keypress", (e) => {
       if (e.key === "Enter" && chatInput.value.trim() !== "") {
         const userMessage = chatInput.value.trim();
@@ -19,20 +17,19 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
   
-    // Nachrichten hinzufügen
     function addMessage(text, sender) {
       const messageEl = document.createElement("div");
       messageEl.textContent = text;
       messageEl.style.padding = "8px";
       messageEl.style.margin = "6px";
       messageEl.style.borderRadius = "8px";
-      messageEl.style.background = sender === "user" ? "#ffc4cb" : "#f2f2f2";
+      messageEl.style.background = sender === "user" ? "#007aff" : "#e5e5ea";
+      messageEl.style.color = sender === "user" ? "#fff" : "#000";
       messageEl.style.alignSelf = sender === "user" ? "flex-end" : "flex-start";
       chatBody.appendChild(messageEl);
       chatBody.scrollTop = chatBody.scrollHeight;
     }
   
-    // Verbindung zum Bot
     function fetchResponse(message) {
       fetch("https://ki-chatbot-13ko.onrender.com/chat", {
         method: "POST",
