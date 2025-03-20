@@ -41,5 +41,5 @@ document.addEventListener("DOMContentLoaded", () => {
             console.error("Fehler beim Abrufen der Antwort:", error);
             addMessage("Fehler bei der Verbindung zum Bot.", "bot");
           });
-      }      
+      } 
 });
