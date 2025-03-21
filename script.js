@@ -6,16 +6,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const sendBtn = document.getElementById("send-btn");
     const uploadBtn = document.getElementById("upload-btn");
     const fileInput = document.getElementById("file-input");
-
-    // Chat öffnen
-    chatToggle.onclick = () => {
-        chatWindow.classList.add("open");
-    };
-
-    // Chat schließen
-    closeChat.onclick = () => {
-        chatWindow.classList.remove("open");
-    };    
+    const closeChat = document.getElementById("close-chat");
+   
 
     chatToggle.onclick = () => {
         if (chatWindow.style.display === "none" || !chatWindow.style.display) {
@@ -27,6 +19,11 @@ document.addEventListener("DOMContentLoaded", () => {
             chatWindow.style.display = "none";
         }
     };
+    
+    closeChat.onclick = () => {
+        chatWindow.style.display = "none";
+    };
+    
 
     sendBtn.onclick = sendMessage;
 
