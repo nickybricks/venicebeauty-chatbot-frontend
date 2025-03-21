@@ -26,20 +26,26 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function fetchResponse(message) {
+        // Checke, ob Nachricht eine E-Mail-Adresse enthält
+        if (message.includes("@") && message.includes(".")) {
+            localStorage.setItem("userEmail", message.trim());
+        }
+
         fetch("https://ki-chatbot-13ko.onrender.com/chat", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ message }),
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ 
+                message: message,
+                email: localStorage.getItem("userEmail") // E-Mail immer mitsenden, wenn gespeichert
+            }),
         })
-          .then((res) => res.json())
-          .then((data) => {
+        .then((res) => res.json())
+        .then((data) => {
             addMessage(data.response, "bot");
-          })
-          .catch((error) => {
+        })
+        .catch((error) => {
             console.error("Fehler beim Abrufen der Antwort:", error);
             addMessage("Fehler bei der Verbindung zum Bot.", "bot");
-          });
-      } 
+        });
+    }
 });
