@@ -28,11 +28,28 @@ document.addEventListener("DOMContentLoaded", () => {
     sendBtn.onclick = sendMessage;
 
     uploadBtn.onclick = () => fileInput.click();
-    fileInput.onchange = e => {
+    fileInput.onchange = (e) => {
         const file = e.target.files[0];
         if (file) {
-            addMessage(`Datei hochgeladen: ${file.name}`, "user");
-            // Upload-Logik auf Serverseite nötig!
+            const formData = new FormData();
+            formData.append("file", file);
+            formData.append("email", localStorage.getItem("userEmail"));
+    
+            fetch("https://ki-chatbot-13ko.onrender.com/upload", {
+                method: "POST",
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(data.success) {
+                    addMessage(`Datei hochgeladen: ${file.name}`, "user");
+                } else {
+                    addMessage("Fehler beim Hochladen der Datei.", "bot");
+                }
+            })
+            .catch(() => {
+                addMessage("Fehler bei der Verbindung zum Server.", "bot");
+            });
         }
     };
 
