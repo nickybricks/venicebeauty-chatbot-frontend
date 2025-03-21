@@ -7,19 +7,18 @@ document.addEventListener("DOMContentLoaded", () => {
     const uploadBtn = document.getElementById("upload-btn");
     const fileInput = document.getElementById("file-input");
 
+    let uploadedFiles = []; // Liste für hochgeladene Dateien
+
+    /** Öffnet & schließt den Chat */
     chatToggle.onclick = () => {
-        if (chatWindow.style.display === "none" || !chatWindow.style.display) {
-            chatWindow.style.display = "flex";
-            if (!chatBody.hasChildNodes()) {
-                addMessage("Hallo! 👋 Wie kann ich dir heute helfen?", "bot");
-            }
-        } else {
-            chatWindow.style.display = "none";
+        chatWindow.style.display = chatWindow.style.display === "none" || !chatWindow.style.display ? "flex" : "none";
+        if (!chatBody.hasChildNodes()) {
+            addMessage("Hallo! 👋 Wie kann ich dir heute helfen?", "bot");
         }
     };
 
+    /** Nachricht senden */
     sendBtn.onclick = sendMessage;
-
     chatInput.addEventListener("keypress", (e) => {
         if (e.key === "Enter") sendMessage();
     });
@@ -41,49 +40,42 @@ document.addEventListener("DOMContentLoaded", () => {
         chatBody.scrollTop = chatBody.scrollHeight;
     }
 
+    /** Datei auswählen */
     uploadBtn.onclick = () => fileInput.click();
 
     fileInput.onchange = (e) => {
         const file = e.target.files[0];
         if (file) {
-            const formData = new FormData();
-            formData.append("file", file);
-            formData.append("email", localStorage.getItem("userEmail"));
-
-            fetch("https://ki-chatbot-13ko.onrender.com/upload", {
-                method: "POST",
-                body: formData
-            })
-            .then(res => res.json())
-            .then(data => {
-                if(data.success) {
-                    addMessage(`Datei hochgeladen: ${file.name}`, "user");
-                } else {
-                    addMessage("Fehler beim Hochladen der Datei.", "bot");
-                }
-            })
-            .catch(() => {
-                addMessage("Fehler bei der Verbindung zum Server.", "bot");
-            });
+            uploadedFiles.push(file);
+            addMessage(`📎 Datei hinzugefügt: ${file.name}`, "user");
         }
     };
 
+    /** Antwort vom Bot abrufen */
     function fetchResponse(message) {
         if (message.includes("@") && message.includes(".")) {
             localStorage.setItem("userEmail", message.trim());
         }
 
+        const formData = new FormData();
+        formData.append("message", message);
+        formData.append("email", localStorage.getItem("userEmail") || "");
+
+        // Falls Dateien hochgeladen wurden, füge sie der Anfrage hinzu
+        uploadedFiles.forEach((file, index) => {
+            formData.append(`file_${index}`, file);
+        });
+
         fetch("https://ki-chatbot-13ko.onrender.com/chat", {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                message: message,
-                email: localStorage.getItem("userEmail")
-            }),
+            body: formData
         })
         .then((res) => res.json())
         .then((data) => {
             addMessage(data.response, "bot");
+            if (data.ticketCreated) {
+                uploadedFiles = []; // Dateien nach Support-Ticket leeren
+            }
         })
         .catch(() => {
             addMessage("Fehler bei der Verbindung zum Bot.", "bot");

@@ -56,7 +56,7 @@ body {
 #chat-input-container {
     display: flex;
     padding: 6px;
-    border-top: 1px solid #ffeda1;
+    border-top: 1px solid #fffce4;
     background-color: #fff;
 }
 
@@ -89,7 +89,7 @@ body {
 }
 
 .bot-message {
-    background-color: #ffeda1;
+    background-color: #fffce4;
     color: #323232;
     align-self: flex-start;
 }
