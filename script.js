@@ -7,6 +7,16 @@ document.addEventListener("DOMContentLoaded", () => {
     const uploadBtn = document.getElementById("upload-btn");
     const fileInput = document.getElementById("file-input");
 
+    // Chat öffnen
+    chatToggle.onclick = () => {
+        chatWindow.classList.add("open");
+    };
+
+    // Chat schließen
+    closeChat.onclick = () => {
+        chatWindow.classList.remove("open");
+    };    
+
     chatToggle.onclick = () => {
         if (chatWindow.style.display === "none" || !chatWindow.style.display) {
             chatWindow.style.display = "flex";
@@ -23,6 +33,18 @@ document.addEventListener("DOMContentLoaded", () => {
     chatInput.addEventListener("keypress", (e) => {
         if (e.key === "Enter") sendMessage();
     });
+
+    chatInput.addEventListener("input", () => {
+        if (chatInput.value.trim() !== "") {
+            sendBtn.classList.add("active");
+            sendBtn.classList.remove("disabled");
+            sendBtn.disabled = false;
+        } else {
+            sendBtn.classList.remove("active");
+            sendBtn.classList.add("disabled");
+            sendBtn.disabled = true;
+        }
+    });    
 
     function sendMessage() {
         const message = chatInput.value.trim();
