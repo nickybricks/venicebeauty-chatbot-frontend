@@ -4,32 +4,48 @@ document.addEventListener("DOMContentLoaded", () => {
     const chatBody = document.getElementById("chat-body");
     const chatInput = document.getElementById("chat-input");
     const sendBtn = document.getElementById("send-btn");
+    const uploadBtn = document.getElementById("upload-btn");
+    const fileInput = document.getElementById("file-input");
+    const voiceBtn = document.getElementById("voice-btn");
 
     chatToggle.onclick = () => {
-        if (chatWindow.style.display === "none" || !chatWindow.style.display) {
-            chatWindow.style.display = "flex";
-            if (!chatBody.hasChildNodes()) {
-                addMessage("Hallo! 👋 Wie kann ich dir heute helfen?", "bot");
-            }
-        } else {
-            chatWindow.style.display = "none";
-        }
+        chatWindow.style.display = chatWindow.style.display === "none" || !chatWindow.style.display ? "flex" : "none";
     };
 
     function sendMessage() {
-        if (chatInput.value.trim()) {
-            const userMessage = chatInput.value.trim();
+        const userMessage = chatInput.value.trim();
+        if (userMessage) {
             addMessage(userMessage, "user");
             chatInput.value = "";
             fetchResponse(userMessage);
         }
     }
 
-    chatInput.addEventListener("keypress", (e) => {
+    chatInput.addEventListener("keypress", e => {
         if (e.key === "Enter") sendMessage();
     });
 
-    sendBtn.addEventListener("click", sendMessage);
+    sendBtn.onclick = sendMessage;
+
+    uploadBtn.onclick = () => fileInput.click();
+    fileInput.onchange = e => {
+        const file = e.target.files[0];
+        if (file) {
+            addMessage(`Datei hochgeladen: ${file.name}`, "user");
+            // Upload-Logik auf Serverseite nötig!
+        }
+    };
+
+    voiceBtn.onclick = () => {
+        const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+        recognition.lang = "de-DE";
+        recognition.start();
+        recognition.onresult = e => {
+            const voiceMessage = e.results[0][0].transcript;
+            addMessage(voiceMessage, "user");
+            fetchResponse(voiceMessage);
+        };
+    };
 
     function addMessage(text, sender) {
         const messageEl = document.createElement("div");
@@ -52,13 +68,11 @@ document.addEventListener("DOMContentLoaded", () => {
                 email: localStorage.getItem("userEmail")
             }),
         })
-        .then((res) => res.json())
-        .then((data) => {
-            addMessage(data.response, "bot");
-        })
-        .catch((error) => {
-            console.error("Fehler beim Abrufen der Antwort:", error);
-            addMessage("Fehler bei der Verbindung zum Bot.", "bot");
+        .then(res => res.json())
+        .then(data => addMessage(data.response, "bot"))
+        .catch(error => {
+            console.error("Fehler:", error);
+            addMessage("Verbindungsfehler zum Bot.", "bot");
         });
     }
 });

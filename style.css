@@ -1,5 +1,5 @@
 body {
-    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", Arial, sans-serif;
+    font-family: 'Poppins', sans-serif;
     background: transparent;
 }
 
@@ -9,7 +9,7 @@ body {
     right: 20px;
     width: 50px;
     height: 50px;
-    background-color: #007aff;
+    background-color: #ffaac3;
     border-radius: 50%;
     color: #fff;
     border: none;
@@ -18,32 +18,29 @@ body {
 }
 
 #chat-toggle:hover {
-    background-color: #005ecb;
+    background-color: #e88fa8;
 }
 
 #chat-window {
     position: fixed;
-    bottom: 80px; /* Abstand unten */
-    right: 20px;  /* Abstand rechts */
-    width: 320px;
-    height: 400px;
+    bottom: 80px;
+    right: 20px;
+    width: 380px;
+    height: 500px;
     background-color: #fff;
     border-radius: 15px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    display: none;
     flex-direction: column;
     overflow: hidden;
-    display: none;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
 }
 
 #chat-header {
-    background-color: #007aff;
+    background-color: #ffaac3;
     color: white;
     padding: 12px;
     text-align: center;
     font-weight: bold;
-    border-top-left-radius: 16px;
-    border-top-right-radius: 16px;
 }
 
 #chat-body {
@@ -52,55 +49,53 @@ body {
     overflow-y: auto;
     display: flex;
     flex-direction: column;
-}
-
-#send-btn {
-    background-color: #007aff;
-    color: white;
-    border: none;
-    padding: 0 15px;
-    cursor: pointer;
-    font-size: 14px;
-    border-radius: 0 0 15px 0;
-}
-
-#send-btn:hover {
-    background-color: #005ecb;
+    gap: 10px;
 }
 
 #chat-input-container {
     display: flex;
-    border-top: 1px solid #ddd;
-    border-radius: 0 0 15px 15px;
-    overflow: hidden;
+    align-items: center;
+    padding: 8px;
+    background-color: #ffeda1;
+    gap: 6px;
 }
 
 #chat-input {
     flex: 1;
-    border: none;
-    padding: 10px;
-    font-size: 14px;
+    padding: 8px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
     outline: none;
+    font-size: 14px;
+    color: #323232;
+}
+
+#upload-btn, #send-btn, #voice-btn {
+    background-color: #ffaac3;
+    color: white;
+    border: none;
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 18px;
 }
 
 .bot-message, .user-message {
     padding: 8px 12px;
-    margin-bottom: 8px;
     border-radius: 16px;
     max-width: 80%;
     font-size: 14px;
-    line-height: 1.4;
 }
 
 .bot-message {
-    background-color: #f0f0f0;
+    background-color: #ffeda1;
+    color: #323232;
     align-self: flex-start;
 }
 
 .user-message {
-    background-color: #007aff;
+    background-color: #ffaac3;
     color: white;
     align-self: flex-end;
 }
-
-

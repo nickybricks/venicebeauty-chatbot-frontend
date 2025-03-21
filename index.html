@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <title>VENICEBEAUTY Chat</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -11,10 +12,16 @@
 
     <div id="chat-window">
         <div id="chat-header">VENICEBEAUTY AI Support Bot</div>
-        <div id="chat-body"></div>
-        <input id="chat-input" placeholder="Nachricht eingeben..." type="text" autocomplete="off">
-        <button id="send-btn">Senden</button>
-
+        <div id="chat-body">
+            <div class="bot-message">Hallo! 👋 Wie kann ich dir heute helfen?</div>
+        </div>
+        <div id="chat-input-container">
+            <button id="upload-btn">＋</button>
+            <input type="file" id="file-input" hidden>
+            <input id="chat-input" placeholder="Nachricht eingeben..." type="text" autocomplete="off">
+            <button id="voice-btn">🎤</button>
+            <button id="send-btn">➤</button>
+        </div>
     </div>
 
     <script src="script.js"></script>
