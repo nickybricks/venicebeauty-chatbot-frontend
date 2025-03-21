@@ -7,36 +7,33 @@ body {
     position: fixed;
     bottom: 20px;
     right: 20px;
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
+    width: 50px;
+    height: 50px;
     background-color: #007aff;
-    color: white;
-    font-size: 28px;
+    border-radius: 50%;
+    color: #fff;
     border: none;
     cursor: pointer;
-    box-shadow: 0 8px 12px rgba(0,0,0,0.15);
-    transition: transform 0.2s ease;
-    z-index: 9999;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
 }
 
 #chat-toggle:hover {
-    transform: scale(1.1);
+    background-color: #005ecb;
 }
 
 #chat-window {
     position: fixed;
-    bottom: 90px;
-    right: 20px;
+    bottom: 80px; /* Abstand unten */
+    right: 20px;  /* Abstand rechts */
     width: 320px;
-    max-height: 400px;
-    background: white;
-    border-radius: 16px;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    height: 400px;
+    background-color: #fff;
+    border-radius: 15px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    flex-direction: column;
     overflow: hidden;
     display: none;
-    flex-direction: column;
-    z-index: 9998;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
 }
 
 #chat-header {
@@ -50,36 +47,37 @@ body {
 }
 
 #chat-body {
-    flex-grow: 1;
-    padding: 12px;
+    flex: 1;
+    padding: 15px;
     overflow-y: auto;
     display: flex;
     flex-direction: column;
 }
 
 #chat-input {
-    padding: 12px;
     border: none;
-    border-top: 1px solid #e0e0e0;
-    border-bottom-left-radius: 16px;
-    border-bottom-right-radius: 16px;
+    padding: 10px;
+    font-size: 14px;
+    outline: none;
+    border-top: 1px solid #ddd;
 }
 
-.user-message, .bot-message {
-    max-width: 80%;
+.bot-message, .user-message {
     padding: 8px 12px;
-    margin: 6px;
-    border-radius: 12px;
-}
-
-.user-message {
-    background: #007aff;
-    color: white;
-    align-self: flex-end;
+    margin-bottom: 8px;
+    border-radius: 16px;
+    max-width: 80%;
+    font-size: 14px;
+    line-height: 1.4;
 }
 
 .bot-message {
-    background: #f0f0f0;
-    color: black;
+    background-color: #f0f0f0;
     align-self: flex-start;
+}
+
+.user-message {
+    background-color: #007aff;
+    color: white;
+    align-self: flex-end;
 }

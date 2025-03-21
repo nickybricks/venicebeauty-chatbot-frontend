@@ -5,17 +5,16 @@ document.addEventListener("DOMContentLoaded", () => {
     const chatInput = document.getElementById("chat-input");
 
     chatToggle.onclick = () => {
-        chatWindow.style.display = chatWindow.style.display === "none" || !chatWindow.style.display ? "flex" : "none";
-    };
-
-    chatInput.addEventListener("keypress", (e) => {
-        if (e.key === "Enter" && chatInput.value.trim()) {
-            const userMessage = chatInput.value.trim();
-            addMessage(userMessage, "user");
-            chatInput.value = "";
-            fetchResponse(userMessage);
+        if (chatWindow.style.display === "none" || !chatWindow.style.display) {
+            chatWindow.style.display = "flex";
+            // Prüfe, ob bereits eine Nachricht vorhanden ist
+            if (!chatBody.hasChildNodes()) {
+                addMessage("Hallo! 👋 Wie kann ich dir heute helfen?", "bot");
+            }
+        } else {
+            chatWindow.style.display = "none";
         }
-    });
+    };
 
     function addMessage(text, sender) {
         const messageEl = document.createElement("div");
