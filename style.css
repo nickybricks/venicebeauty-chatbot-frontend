@@ -1,34 +1,33 @@
 body {
     font-family: 'Poppins', sans-serif;
     background: transparent;
+    margin: 0;
+    padding: 0;
 }
 
 #chat-toggle {
     position: fixed;
-    bottom: 20px;
-    right: 20px;
+    bottom: 15px;
+    right: 15px;
     width: 50px;
     height: 50px;
     background-color: #ffaac3;
+    color: #ffffff;
     border-radius: 50%;
-    color: #fff;
     border: none;
     cursor: pointer;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-}
-
-#chat-toggle:hover {
-    background-color: #e88fa8;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    font-size: 24px;
 }
 
 #chat-window {
     position: fixed;
     bottom: 80px;
-    right: 20px;
-    width: 380px;
-    height: 500px;
-    background-color: #fff;
-    border-radius: 15px;
+    right: 15px;
+    width: 360px; /* schmaler als vorher */
+    height: 480px;
+    background-color: #ffffff;
+    border-radius: 12px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     display: none;
     flex-direction: column;
@@ -38,52 +37,53 @@ body {
 #chat-header {
     background-color: #ffaac3;
     color: white;
-    padding: 12px;
+    padding: 14px;
     text-align: center;
     font-weight: bold;
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
 }
 
 #chat-body {
     flex: 1;
-    padding: 15px;
+    padding: 12px;
     overflow-y: auto;
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    font-size: 14px;
 }
 
 #chat-input-container {
     display: flex;
-    align-items: center;
-    padding: 8px;
-    background-color: #ffeda1;
-    gap: 6px;
+    padding: 6px;
+    border-top: 1px solid #ffeda1;
+    background-color: #fff;
 }
 
 #chat-input {
     flex: 1;
+    border: none;
     padding: 8px;
-    border-radius: 8px;
-    border: 1px solid #ddd;
+    border-radius: 6px;
+    background-color: #f8f8f8;
     outline: none;
-    font-size: 14px;
-    color: #323232;
 }
 
-#upload-btn, #send-btn, #voice-btn {
+#send-btn, #upload-btn {
     background-color: #ffaac3;
-    color: white;
+    color: #ffffff;
     border: none;
-    width: 35px;
-    height: 35px;
-    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    border-radius: 6px;
+    margin-left: 4px;
     cursor: pointer;
-    font-size: 18px;
 }
 
 .bot-message, .user-message {
     padding: 8px 12px;
-    border-radius: 16px;
+    margin: 6px 0;
+    border-radius: 14px;
     max-width: 80%;
     font-size: 14px;
 }
@@ -98,4 +98,20 @@ body {
     background-color: #ffaac3;
     color: white;
     align-self: flex-end;
+}
+
+/* Mobilgeräte - Vollbildmodus genau wie ChatGPT App */
+@media (max-width: 600px) {
+    #chat-window {
+        width: 100vw;
+        height: 100vh;
+        bottom: 0;
+        right: 0;
+        border-radius: 0;
+    }
+
+    #chat-toggle {
+        bottom: 20px;
+        right: 20px;
+    }
 }
