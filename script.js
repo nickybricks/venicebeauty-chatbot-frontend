@@ -7,12 +7,12 @@ document.addEventListener("DOMContentLoaded", () => {
     const uploadBtn = document.getElementById("upload-btn");
     const fileInput = document.getElementById("file-input");
     const closeChat = document.getElementById("close-chat");
-   
 
+    // Öffnen/Schließen mit Animation + Begrüßung
     chatToggle.onclick = () => {
         if (!chatWindow.classList.contains("open")) {
             chatWindow.classList.add("open");
-    
+
             if (!chatBody.hasChildNodes()) {
                 addMessage("Hallo! 👋 Wie kann ich dir heute helfen?", "bot");
             }
@@ -20,18 +20,13 @@ document.addEventListener("DOMContentLoaded", () => {
             chatWindow.classList.remove("open");
         }
     };
-    
+
+    // X-Button oben links zum Schließen
     closeChat.onclick = () => {
         chatWindow.classList.remove("open");
     };
-    
 
-    sendBtn.onclick = sendMessage;
-
-    chatInput.addEventListener("keypress", (e) => {
-        if (e.key === "Enter") sendMessage();
-    });
-
+    // Button nur aktivieren, wenn Text da ist
     chatInput.addEventListener("input", () => {
         if (chatInput.value.trim() !== "") {
             sendBtn.classList.add("active");
@@ -42,13 +37,23 @@ document.addEventListener("DOMContentLoaded", () => {
             sendBtn.classList.add("disabled");
             sendBtn.disabled = true;
         }
-    });    
+    });
+
+    // Senden mit Klick oder Enter
+    sendBtn.onclick = sendMessage;
+
+    chatInput.addEventListener("keypress", (e) => {
+        if (e.key === "Enter" && !sendBtn.disabled) sendMessage();
+    });
 
     function sendMessage() {
         const message = chatInput.value.trim();
         if (message) {
             addMessage(message, "user");
             chatInput.value = "";
+            sendBtn.classList.remove("active");
+            sendBtn.classList.add("disabled");
+            sendBtn.disabled = true;
             fetchResponse(message);
         }
     }
@@ -74,17 +79,17 @@ document.addEventListener("DOMContentLoaded", () => {
                 method: "POST",
                 body: formData
             })
-            .then(res => res.json())
-            .then(data => {
-                if(data.success) {
-                    addMessage(`Datei hochgeladen: ${file.name}`, "user");
-                } else {
-                    addMessage("Fehler beim Hochladen der Datei.", "bot");
-                }
-            })
-            .catch(() => {
-                addMessage("Fehler bei der Verbindung zum Server.", "bot");
-            });
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        addMessage(`Datei hochgeladen: ${file.name}`, "user");
+                    } else {
+                        addMessage("Fehler beim Hochladen der Datei.", "bot");
+                    }
+                })
+                .catch(() => {
+                    addMessage("Fehler bei der Verbindung zum Server.", "bot");
+                });
         }
     };
 
@@ -101,12 +106,12 @@ document.addEventListener("DOMContentLoaded", () => {
                 email: localStorage.getItem("userEmail")
             }),
         })
-        .then((res) => res.json())
-        .then((data) => {
-            addMessage(data.response, "bot");
-        })
-        .catch(() => {
-            addMessage("Fehler bei der Verbindung zum Bot.", "bot");
-        });
+            .then((res) => res.json())
+            .then((data) => {
+                addMessage(data.response, "bot");
+            })
+            .catch(() => {
+                addMessage("Fehler bei der Verbindung zum Bot.", "bot");
+            });
     }
 });
