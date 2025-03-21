@@ -54,7 +54,22 @@ body {
     flex-direction: column;
 }
 
+#send-btn {
+    background-color: #007aff;
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 0 0 15px 15px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+#send-btn:hover {
+    background-color: #005ecb;
+}
+
 #chat-input {
+    flex-grow: 1;
     border: none;
     padding: 10px;
     font-size: 14px;
@@ -81,3 +96,5 @@ body {
     color: white;
     align-self: flex-end;
 }
+
+

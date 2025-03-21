@@ -3,11 +3,11 @@ document.addEventListener("DOMContentLoaded", () => {
     const chatWindow = document.getElementById("chat-window");
     const chatBody = document.getElementById("chat-body");
     const chatInput = document.getElementById("chat-input");
+    const sendBtn = document.getElementById("send-btn");
 
     chatToggle.onclick = () => {
         if (chatWindow.style.display === "none" || !chatWindow.style.display) {
             chatWindow.style.display = "flex";
-            // Prüfe, ob bereits eine Nachricht vorhanden ist
             if (!chatBody.hasChildNodes()) {
                 addMessage("Hallo! 👋 Wie kann ich dir heute helfen?", "bot");
             }
@@ -15,6 +15,21 @@ document.addEventListener("DOMContentLoaded", () => {
             chatWindow.style.display = "none";
         }
     };
+
+    function sendMessage() {
+        if (chatInput.value.trim()) {
+            const userMessage = chatInput.value.trim();
+            addMessage(userMessage, "user");
+            chatInput.value = "";
+            fetchResponse(userMessage);
+        }
+    }
+
+    chatInput.addEventListener("keypress", (e) => {
+        if (e.key === "Enter") sendMessage();
+    });
+
+    sendBtn.addEventListener("click", sendMessage);
 
     function addMessage(text, sender) {
         const messageEl = document.createElement("div");
@@ -25,7 +40,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function fetchResponse(message) {
-        // Checke, ob Nachricht eine E-Mail-Adresse enthält
         if (message.includes("@") && message.includes(".")) {
             localStorage.setItem("userEmail", message.trim());
         }
@@ -33,9 +47,9 @@ document.addEventListener("DOMContentLoaded", () => {
         fetch("https://ki-chatbot-13ko.onrender.com/chat", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ 
+            body: JSON.stringify({
                 message: message,
-                email: localStorage.getItem("userEmail") // E-Mail immer mitsenden, wenn gespeichert
+                email: localStorage.getItem("userEmail")
             }),
         })
         .then((res) => res.json())
