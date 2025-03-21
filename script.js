@@ -10,18 +10,19 @@ document.addEventListener("DOMContentLoaded", () => {
    
 
     chatToggle.onclick = () => {
-        if (chatWindow.style.display === "none" || !chatWindow.style.display) {
-            chatWindow.style.display = "flex";
+        if (!chatWindow.classList.contains("open")) {
+            chatWindow.classList.add("open");
+    
             if (!chatBody.hasChildNodes()) {
                 addMessage("Hallo! 👋 Wie kann ich dir heute helfen?", "bot");
             }
         } else {
-            chatWindow.style.display = "none";
+            chatWindow.classList.remove("open");
         }
     };
     
     closeChat.onclick = () => {
-        chatWindow.style.display = "none";
+        chatWindow.classList.remove("open");
     };
     
 
