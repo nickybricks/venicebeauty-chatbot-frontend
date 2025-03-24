@@ -77,9 +77,6 @@ document.addEventListener("DOMContentLoaded", () => {
             localStorage.setItem("userEmail", message.trim());
         }
 
-        // Zeige eine Zwischennachricht, falls die API etwas länger braucht
-        addMessage("Ich prüfe das gerade für dich…", "bot");
-
         fetch("https://ki-chatbot-13ko.onrender.com/chat", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
