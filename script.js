@@ -6,12 +6,13 @@ document.addEventListener("DOMContentLoaded", () => {
     const sendBtn = document.getElementById("send-btn");
     const uploadBtn = document.getElementById("upload-btn");
     const fileInput = document.getElementById("file-input");
+    let chatHistory = []; // Hier wird der gesamte Chatverlauf gespeichert
 
     chatToggle.onclick = () => {
         if (chatWindow.style.display === "none" || !chatWindow.style.display) {
             chatWindow.style.display = "flex";
             if (!chatBody.hasChildNodes()) {
-                addMessage("Hallo! 👋 Wie kann ich dir heute helfen? Falls es um deine Bestellung geht, nenne bitte auch deine Bestellnummer (falls vorhanden) oder eine E-Mail Adresse mit der du bestellt hast.", "bot");
+                addMessage("Hallo! 👋 Wie kann ich dir helfen? Falls es um deine Bestellung geht, nenne bitte deine Bestellnummer oder deine E-Mail.", "bot");
             }
         } else {
             chatWindow.style.display = "none";
@@ -24,12 +25,11 @@ document.addEventListener("DOMContentLoaded", () => {
         if (e.key === "Enter") sendMessage();
     });
 
-    
-
     function sendMessage() {
         const message = chatInput.value.trim();
         if (message) {
             addMessage(message, "user");
+            chatHistory.push({ sender: "user", message });
             chatInput.value = "";
             fetchResponse(message);
         }
@@ -60,6 +60,7 @@ document.addEventListener("DOMContentLoaded", () => {
             .then(data => {
                 if(data.success) {
                     addMessage(`Datei hochgeladen: ${file.name}`, "user");
+                    chatHistory.push({ sender: "user", message: `Datei hochgeladen: ${file.name}` });
                 } else {
                     addMessage("Fehler beim Hochladen der Datei.", "bot");
                 }
@@ -71,21 +72,27 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     function fetchResponse(message) {
+        // Speichern der E-Mail, falls im Chat erwähnt
         if (message.includes("@") && message.includes(".")) {
             localStorage.setItem("userEmail", message.trim());
         }
+
+        // Zeige eine Zwischennachricht, falls die API etwas länger braucht
+        addMessage("Ich prüfe das gerade für dich…", "bot");
 
         fetch("https://ki-chatbot-13ko.onrender.com/chat", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
                 message: message,
-                email: localStorage.getItem("userEmail")
+                email: localStorage.getItem("userEmail"),
+                chatHistory: chatHistory // Übergabe des bisherigen Chatverlaufs an das Backend
             }),
         })
         .then((res) => res.json())
         .then((data) => {
             addMessage(data.response, "bot");
+            chatHistory.push({ sender: "bot", message: data.response });
         })
         .catch(() => {
             addMessage("Fehler bei der Verbindung zum Bot.", "bot");
