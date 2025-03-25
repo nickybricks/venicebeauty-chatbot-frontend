@@ -72,9 +72,8 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     function fetchResponse(message) {
-        // Speichern der E-Mail, falls im Chat erwähnt
         if (message.includes("@") && message.includes(".")) {
-            localStorage.setItem("userEmail", message.trim());
+        localStorage.setItem("userEmail", message.trim());
         }
 
         fetch("https://ki-chatbot-13ko.onrender.com/chat", {
@@ -83,16 +82,35 @@ document.addEventListener("DOMContentLoaded", () => {
             body: JSON.stringify({
                 message: message,
                 email: localStorage.getItem("userEmail"),
-                chatHistory: chatHistory // Übergabe des bisherigen Chatverlaufs an das Backend
+                chatHistory: chatHistory
             }),
         })
         .then((res) => res.json())
         .then((data) => {
             addMessage(data.response, "bot");
             chatHistory.push({ sender: "bot", message: data.response });
+
+            if (data.suggestion) {
+                addSuggestionButton(data.suggestion);
+            }
         })
         .catch(() => {
             addMessage("Fehler bei der Verbindung zum Bot.", "bot");
         });
     }
+
+    function addSuggestionButton(suggestionText) {
+        const button = document.createElement("button");
+        button.textContent = suggestionText;
+        button.className = "suggestion-button"; // Du kannst dafür CSS definieren
+        button.onclick = () => {
+            addMessage(suggestionText, "user");
+            chatHistory.push({ sender: "user", message: suggestionText });
+            button.remove(); // Button nach Klick entfernen
+            fetchResponse(suggestionText); // Trigger Anfrage mit genau diesem Text
+        };
+        chatBody.appendChild(button);
+        chatBody.scrollTop = chatBody.scrollHeight;
+    }
+    
 });
