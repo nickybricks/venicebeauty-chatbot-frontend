@@ -12,7 +12,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (chatWindow.style.display === "none" || !chatWindow.style.display) {
             chatWindow.style.display = "flex";
             if (!chatBody.hasChildNodes()) {
-                addMessage("Hallo! 👋 Wie kann ich dir helfen? Falls es um deine Bestellung geht, nenne bitte deine Bestellnummer oder deine E-Mail.", "bot");
+                addMessage("Hallo! 👋 Wie kann ich dir helfen? Falls es um deine Bestellung geht, gib bitte sowohl deine Bestellnummer als auch die E-Mail-Adresse an, mit der du bestellt hast.", "bot");
             }
         } else {
             chatWindow.style.display = "none";
