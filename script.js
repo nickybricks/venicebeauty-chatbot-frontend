@@ -37,7 +37,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function addMessage(text, sender) {
         const messageEl = document.createElement("div");
-        messageEl.textContent = text;
+        messageEl.innerHTML = text; // statt .textContent = text
         messageEl.className = sender === "user" ? "user-message" : "bot-message";
         chatBody.appendChild(messageEl);
         chatBody.scrollTop = chatBody.scrollHeight;
