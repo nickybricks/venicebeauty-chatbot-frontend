@@ -51,7 +51,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const formData = new FormData();
             formData.append("file", file);
             formData.append("email", localStorage.getItem("userEmail"));
-
+    
             fetch("https://ki-chatbot-13ko.onrender.com/upload", {
                 method: "POST",
                 body: formData
@@ -61,6 +61,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 if(data.success) {
                     addMessage(`Datei hochgeladen: ${file.name}`, "user");
                     chatHistory.push({ sender: "user", message: `Datei hochgeladen: ${file.name}` });
+                    fetchResponse(`Datei hochgeladen: ${file.name}`); // Neue Nachricht an den Bot senden
                 } else {
                     addMessage("Fehler beim Hochladen der Datei.", "bot");
                 }
