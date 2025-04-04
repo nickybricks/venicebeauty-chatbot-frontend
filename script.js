@@ -73,9 +73,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function fetchResponse(message) {
         if (message.includes("@") && message.includes(".")) {
-        localStorage.setItem("userEmail", message.trim());
+            localStorage.setItem("userEmail", message.trim());
         }
-
+    
         fetch("https://ki-chatbot-13ko.onrender.com/chat", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -87,11 +87,15 @@ document.addEventListener("DOMContentLoaded", () => {
         })
         .then((res) => res.json())
         .then((data) => {
+            console.log("DEBUG: Received data:", data); // Debugging-Log
             addMessage(data.response, "bot");
             chatHistory.push({ sender: "bot", message: data.response });
-
+    
             if (data.suggestion) {
+                console.log("DEBUG: Suggestion found:", data.suggestion); // Neuer Debugging-Log
                 addSuggestionButton(data.suggestion);
+            } else {
+                console.log("DEBUG: No suggestion found in response"); // Neuer Debugging-Log
             }
         })
         .catch(() => {
