@@ -114,3 +114,29 @@ body {
     background-color: #ffaac3;
 }
 
+.file-name {
+    background-color: #e0e0e0;
+    padding: 2px 5px;
+    border-radius: 3px;
+    margin-right: 5px;
+    display: inline-flex;
+    align-items: center;
+}
+
+.remove-file {
+    margin-left: 3px;
+    color: red;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+#chat-input {
+    flex: 1;
+    padding: 8px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    outline: none;
+    font-size: 14px;
+    color: #323232;
+    white-space: pre-wrap; /* Ermöglicht Zeilenumbrüche */
+}
