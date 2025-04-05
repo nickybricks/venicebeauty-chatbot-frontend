@@ -140,3 +140,32 @@ body {
     color: #323232;
     white-space: pre-wrap; /* Ermöglicht Zeilenumbrüche */
 }
+
+#file-list {
+    position: absolute;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 5px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    z-index: 1000;
+    display: none;
+}
+
+#file-list div {
+    display: flex;
+    align-items: center;
+    padding: 2px 5px;
+}
+
+#file-list span {
+    margin-right: 5px;
+}
+
+#file-list button {
+    background-color: transparent;
+    border: none;
+    color: red;
+    cursor: pointer;
+    font-size: 12px;
+}
