@@ -60,15 +60,6 @@ body {
     gap: 6px;
 }
 
-#chat-input {
-    flex: 1;
-    padding: 8px;
-    border-radius: 8px;
-    border: 1px solid #ddd;
-    outline: none;
-    font-size: 14px;
-    color: #323232;
-}
 
 #upload-btn, #send-btn, #voice-btn {
     background-color: #ffaac3;
@@ -141,30 +132,23 @@ body {
     white-space: pre-wrap; /* Ermöglicht Zeilenumbrüche */
 }
 
-#file-list {
-    position: absolute;
-    background-color: #fff;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    padding: 5px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    z-index: 1000;
-    display: none;
+#chat-input:empty:before {
+    content: attr(placeholder);
+    color: #999;
 }
 
-#file-list div {
-    display: flex;
+.file-chip {
+    display: inline-flex;
     align-items: center;
+    background-color: #e0e0e0;
     padding: 2px 5px;
+    border-radius: 3px;
+    margin: 2px;
+    font-size: 12px;
 }
 
-#file-list span {
-    margin-right: 5px;
-}
-
-#file-list button {
-    background-color: transparent;
-    border: none;
+.file-chip .remove-file {
+    margin-left: 3px;
     color: red;
     cursor: pointer;
     font-size: 12px;
