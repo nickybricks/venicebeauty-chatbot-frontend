@@ -7,8 +7,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const uploadBtn = document.getElementById("upload-btn");
     const fileInput = document.getElementById("file-input");
     let chatHistory = [];
-    let selectedFiles = []; // Array zum Speichern der ausgewählten Dateien
-    let baseText = ""; // Zum Speichern des Textes ohne Dateinamen
+    let selectedFiles = [];
+    let baseText = "";
 
     chatToggle.onclick = () => {
         if (chatWindow.style.display === "none" || !chatWindow.style.display) {
@@ -31,7 +31,7 @@ document.addEventListener("DOMContentLoaded", () => {
         // Speichere den Text ohne die Dateinamen
         const text = chatInput.value.split("(Dateien:")[0].trim();
         baseText = text;
-        updateInputField(); // Aktualisiere das Eingabefeld mit den Dateinamen
+        updateInputField();
     });
 
     function sendMessage() {
@@ -39,15 +39,14 @@ document.addEventListener("DOMContentLoaded", () => {
         if (message || selectedFiles.length > 0) {
             let finalMessage = baseText;
             if (selectedFiles.length > 0) {
-                // Wenn Dateien ausgewählt wurden, füge sie zur Nachricht hinzu
                 const fileNames = selectedFiles.map(file => file.name).join(", ");
                 finalMessage = baseText ? `${baseText} (Dateien: ${fileNames})` : `Dateien: ${fileNames}`;
-                uploadFiles(selectedFiles, baseText); // Dateien hochladen
-                selectedFiles = []; // Zurücksetzen der ausgewählten Dateien
-                fileInput.value = ""; // Datei-Eingabefeld zurücksetzen
-                baseText = ""; // Zurücksetzen des Basis-Textes
+                uploadFiles(selectedFiles, baseText);
+                selectedFiles = [];
+                fileInput.value = "";
+                baseText = "";
             } else {
-                finalMessage = message; // Nur Text ohne Dateien
+                finalMessage = message;
             }
             addMessage(finalMessage, "user");
             chatHistory.push({ sender: "user", message: finalMessage });
@@ -59,45 +58,93 @@ document.addEventListener("DOMContentLoaded", () => {
     uploadBtn.onclick = () => fileInput.click();
 
     fileInput.onchange = (e) => {
-        const files = Array.from(e.target.files); // Konvertiere FileList in Array
+        const files = Array.from(e.target.files);
         if (files.length > 0) {
-            selectedFiles = [...selectedFiles, ...files]; // Füge neue Dateien zu den bereits ausgewählten hinzu
-            updateInputField(); // Aktualisiere das Eingabefeld mit den Dateinamen
-            chatInput.focus(); // Setze den Fokus auf das Eingabefeld
+            selectedFiles = [...selectedFiles, ...files];
+            updateInputField();
+            chatInput.focus();
         }
     };
 
     function updateInputField() {
-        // Zeige die Dateinamen im Eingabefeld an
-        const fileNames = selectedFiles.map((file, index) => {
-            return `<span class="file-name" data-index="${index}">${file.name}<span class="remove-file" onclick="removeFile(${index})"> ✕</span></span>`;
-        }).join(", ");
+        // Zeige die Dateinamen als reinen Text im Eingabefeld
+        const fileNames = selectedFiles.map(file => file.name).join(", ");
         chatInput.value = selectedFiles.length > 0 ? `${baseText} (Dateien: ${fileNames})` : baseText;
 
-        // Füge ein Skript hinzu, um die Entfern-Funktion zu handhaben
-        const script = document.createElement("script");
-        script.textContent = `
-            function removeFile(index) {
+        // Erstelle eine Dropdown-Liste mit den Dateinamen und Entfern-Buttons
+        let fileList = document.getElementById("file-list");
+        if (!fileList) {
+            fileList = document.createElement("div");
+            fileList.id = "file-list";
+            fileList.style.position = "absolute";
+            fileList.style.backgroundColor = "#fff";
+            fileList.style.border = "1px solid #ddd";
+            fileList.style.borderRadius = "5px";
+            fileList.style.padding = "5px";
+            fileList.style.boxShadow = "0 2px 4px rgba(0,0,0,0.1)";
+            fileList.style.zIndex = "1000";
+            fileList.style.display = "none";
+            document.body.appendChild(fileList);
+        }
+
+        fileList.innerHTML = "";
+        selectedFiles.forEach((file, index) => {
+            const fileItem = document.createElement("div");
+            fileItem.style.display = "flex";
+            fileItem.style.alignItems = "center";
+            fileItem.style.padding = "2px 5px";
+
+            const fileName = document.createElement("span");
+            fileName.textContent = file.name;
+            fileName.style.marginRight = "5px";
+
+            const removeBtn = document.createElement("button");
+            removeBtn.textContent = "✕";
+            removeBtn.style.backgroundColor = "transparent";
+            removeBtn.style.border = "none";
+            removeBtn.style.color = "red";
+            removeBtn.style.cursor = "pointer";
+            removeBtn.onclick = () => {
                 selectedFiles.splice(index, 1);
                 updateInputField();
-            }
-        `;
-        document.body.appendChild(script);
-    }
+                if (selectedFiles.length === 0) {
+                    fileList.style.display = "none";
+                }
+            };
 
-    window.removeFile = (index) => {
-        selectedFiles.splice(index, 1);
-        updateInputField();
-    };
+            fileItem.appendChild(fileName);
+            fileItem.appendChild(removeBtn);
+            fileList.appendChild(fileItem);
+        });
+
+        // Zeige die Dateiliste, wenn der Kunde auf das Eingabefeld klickt
+        chatInput.onclick = () => {
+            if (selectedFiles.length > 0) {
+                const rect = chatInput.getBoundingClientRect();
+                fileList.style.top = `${rect.top - fileList.offsetHeight - 5}px`;
+                fileList.style.left = `${rect.left}px`;
+                fileList.style.display = "block";
+            } else {
+                fileList.style.display = "none";
+            }
+        };
+
+        // Entferne die Dateiliste, wenn der Kunde woanders klickt
+        document.addEventListener("click", (e) => {
+            if (!fileList.contains(e.target) && e.target !== chatInput) {
+                fileList.style.display = "none";
+            }
+        });
+    }
 
     function uploadFiles(files, message) {
         const formData = new FormData();
         files.forEach((file, index) => {
-            formData.append(`file${index}`, file); // Füge jede Datei mit einem eindeutigen Schlüssel hinzu
+            formData.append(`file${index}`, file);
         });
         formData.append("email", localStorage.getItem("userEmail"));
         formData.append("message", message);
-
+    
         fetch("https://ki-chatbot-13ko.onrender.com/upload", {
             method: "POST",
             body: formData
@@ -106,13 +153,17 @@ document.addEventListener("DOMContentLoaded", () => {
         .then(data => {
             if (data.success) {
                 console.log("Dateien erfolgreich hochgeladen:", data.filenames);
-                // Zeige jede Datei als separate Nachricht im Chat
                 data.filenames.forEach(filename => {
                     const fileMessage = `Datei hochgeladen: ${filename}`;
                     addMessage(fileMessage, "user");
                     chatHistory.push({ sender: "user", message: fileMessage });
                     fetchResponse(fileMessage);
                 });
+                if (message) {
+                    addMessage(message, "user");
+                    chatHistory.push({ sender: "user", message });
+                    fetchResponse(message);
+                }
             } else {
                 addMessage("Fehler beim Hochladen der Dateien.", "bot");
             }
