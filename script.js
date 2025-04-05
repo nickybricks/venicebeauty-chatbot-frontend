@@ -8,7 +8,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const fileInput = document.getElementById("file-input");
     let chatHistory = [];
     let selectedFiles = [];
-    let baseText = "";
 
     chatToggle.onclick = () => {
         if (chatWindow.style.display === "none" || !chatWindow.style.display) {
@@ -24,31 +23,26 @@ document.addEventListener("DOMContentLoaded", () => {
     sendBtn.onclick = sendMessage;
 
     chatInput.addEventListener("keypress", (e) => {
-        if (e.key === "Enter") sendMessage();
-    });
-
-    chatInput.addEventListener("input", () => {
-        const text = chatInput.value.split("(Dateien:")[0].trim();
-        baseText = text;
-        updateInputField();
+        if (e.key === "Enter" && !e.shiftKey) {
+            e.preventDefault();
+            sendMessage();
+        }
     });
 
     function sendMessage() {
-        const message = chatInput.value.trim();
-        if (message || selectedFiles.length > 0) {
-            // Sende nur den Basis-Text, falls vorhanden
-            if (baseText) {
-                addMessage(baseText, "user");
-                chatHistory.push({ sender: "user", message: baseText });
-                fetchResponse(baseText);
+        const textContent = chatInput.textContent.trim();
+        if (textContent || selectedFiles.length > 0) {
+            if (textContent) {
+                addMessage(textContent, "user");
+                chatHistory.push({ sender: "user", message: textContent });
+                fetchResponse(textContent);
             }
             if (selectedFiles.length > 0) {
-                uploadFiles(selectedFiles, baseText);
+                uploadFiles(selectedFiles, textContent);
             }
             selectedFiles = [];
             fileInput.value = "";
-            baseText = "";
-            chatInput.value = "";
+            chatInput.innerHTML = "";
         }
     }
 
@@ -64,71 +58,30 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     function updateInputField() {
-        const fileNames = selectedFiles.map(file => file.name).join(", ");
-        chatInput.value = selectedFiles.length > 0 ? `${baseText} (Dateien: ${fileNames})` : baseText;
+        // Behalte den Text vor den Dateien bei
+        const textNodes = Array.from(chatInput.childNodes).filter(node => node.nodeType === Node.TEXT_NODE);
+        const textContent = textNodes.map(node => node.textContent).join("").trim();
 
-        let fileList = document.getElementById("file-list");
-        if (!fileList) {
-            fileList = document.createElement("div");
-            fileList.id = "file-list";
-            fileList.style.position = "absolute";
-            fileList.style.backgroundColor = "#fff";
-            fileList.style.border = "1px solid #ddd";
-            fileList.style.borderRadius = "5px";
-            fileList.style.padding = "5px";
-            fileList.style.boxShadow = "0 2px 4px rgba(0,0,0,0.1)";
-            fileList.style.zIndex = "1000";
-            fileList.style.display = "none";
-            document.body.appendChild(fileList);
+        // Erstelle das Eingabefeld neu mit Text und Datei-Chips
+        chatInput.innerHTML = "";
+        if (textContent) {
+            const textNode = document.createTextNode(textContent + " ");
+            chatInput.appendChild(textNode);
         }
 
-        fileList.innerHTML = "";
         selectedFiles.forEach((file, index) => {
-            const fileItem = document.createElement("div");
-            fileItem.style.display = "flex";
-            fileItem.style.alignItems = "center";
-            fileItem.style.padding = "2px 5px";
-
-            const fileName = document.createElement("span");
-            fileName.textContent = file.name;
-            fileName.style.marginRight = "5px";
-
-            const removeBtn = document.createElement("button");
-            removeBtn.textContent = "✕";
-            removeBtn.style.backgroundColor = "transparent";
-            removeBtn.style.border = "none";
-            removeBtn.style.color = "red";
-            removeBtn.style.cursor = "pointer";
-            removeBtn.onclick = () => {
-                selectedFiles.splice(index, 1);
-                updateInputField();
-                if (selectedFiles.length === 0) {
-                    fileList.style.display = "none";
-                }
-            };
-
-            fileItem.appendChild(fileName);
-            fileItem.appendChild(removeBtn);
-            fileList.appendChild(fileItem);
-        });
-
-        chatInput.onclick = () => {
-            if (selectedFiles.length > 0) {
-                const rect = chatInput.getBoundingClientRect();
-                fileList.style.top = `${rect.top - fileList.offsetHeight - 5}px`;
-                fileList.style.left = `${rect.left}px`;
-                fileList.style.display = "block";
-            } else {
-                fileList.style.display = "none";
-            }
-        };
-
-        document.addEventListener("click", (e) => {
-            if (!fileList.contains(e.target) && e.target !== chatInput) {
-                fileList.style.display = "none";
-            }
+            const chip = document.createElement("span");
+            chip.className = "file-chip";
+            chip.innerHTML = `${file.name}<span class="remove-file" onclick="removeFile(${index})">✕</span>`;
+            chatInput.appendChild(chip);
+            chatInput.appendChild(document.createTextNode(" "));
         });
     }
+
+    window.removeFile = (index) => {
+        selectedFiles.splice(index, 1);
+        updateInputField();
+    };
 
     function uploadFiles(files, message) {
         const formData = new FormData();
@@ -151,7 +104,6 @@ document.addEventListener("DOMContentLoaded", () => {
                     addMessage(fileMessage, "user");
                     chatHistory.push({ sender: "user", message: fileMessage });
                 });
-                // Sende nur eine fetchResponse-Anfrage nach dem Hochladen aller Dateien
                 fetchResponse(`Datei hochgeladen: ${data.filenames[data.filenames.length - 1]}`);
             } else {
                 addMessage("Fehler beim Hochladen der Dateien.", "bot");
@@ -177,7 +129,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 localStorage.setItem("userEmail", emailMatch[0]);
             }
         }
-    
+
         fetch("https://ki-chatbot-13ko.onrender.com/chat", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -192,7 +144,7 @@ document.addEventListener("DOMContentLoaded", () => {
             console.log("DEBUG: Received data:", data);
             addMessage(data.response, "bot");
             chatHistory.push({ sender: "bot", message: data.response });
-    
+
             if (data.suggestion) {
                 addSuggestionButton(data.suggestion);
             }
