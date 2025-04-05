@@ -28,7 +28,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     chatInput.addEventListener("input", () => {
-        // Speichere den Text ohne die Dateinamen
         const text = chatInput.value.split("(Dateien:")[0].trim();
         baseText = text;
         updateInputField();
@@ -37,21 +36,19 @@ document.addEventListener("DOMContentLoaded", () => {
     function sendMessage() {
         const message = chatInput.value.trim();
         if (message || selectedFiles.length > 0) {
-            let finalMessage = baseText;
-            if (selectedFiles.length > 0) {
-                const fileNames = selectedFiles.map(file => file.name).join(", ");
-                finalMessage = baseText ? `${baseText} (Dateien: ${fileNames})` : `Dateien: ${fileNames}`;
-                uploadFiles(selectedFiles, baseText);
-                selectedFiles = [];
-                fileInput.value = "";
-                baseText = "";
-            } else {
-                finalMessage = message;
+            // Sende nur den Basis-Text, falls vorhanden
+            if (baseText) {
+                addMessage(baseText, "user");
+                chatHistory.push({ sender: "user", message: baseText });
+                fetchResponse(baseText);
             }
-            addMessage(finalMessage, "user");
-            chatHistory.push({ sender: "user", message: finalMessage });
+            if (selectedFiles.length > 0) {
+                uploadFiles(selectedFiles, baseText);
+            }
+            selectedFiles = [];
+            fileInput.value = "";
+            baseText = "";
             chatInput.value = "";
-            fetchResponse(finalMessage);
         }
     }
 
@@ -67,11 +64,9 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     function updateInputField() {
-        // Zeige die Dateinamen als reinen Text im Eingabefeld
         const fileNames = selectedFiles.map(file => file.name).join(", ");
         chatInput.value = selectedFiles.length > 0 ? `${baseText} (Dateien: ${fileNames})` : baseText;
 
-        // Erstelle eine Dropdown-Liste mit den Dateinamen und Entfern-Buttons
         let fileList = document.getElementById("file-list");
         if (!fileList) {
             fileList = document.createElement("div");
@@ -117,7 +112,6 @@ document.addEventListener("DOMContentLoaded", () => {
             fileList.appendChild(fileItem);
         });
 
-        // Zeige die Dateiliste, wenn der Kunde auf das Eingabefeld klickt
         chatInput.onclick = () => {
             if (selectedFiles.length > 0) {
                 const rect = chatInput.getBoundingClientRect();
@@ -129,7 +123,6 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         };
 
-        // Entferne die Dateiliste, wenn der Kunde woanders klickt
         document.addEventListener("click", (e) => {
             if (!fileList.contains(e.target) && e.target !== chatInput) {
                 fileList.style.display = "none";
@@ -144,7 +137,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
         formData.append("email", localStorage.getItem("userEmail"));
         formData.append("message", message);
-    
+
         fetch("https://ki-chatbot-13ko.onrender.com/upload", {
             method: "POST",
             body: formData
@@ -157,13 +150,9 @@ document.addEventListener("DOMContentLoaded", () => {
                     const fileMessage = `Datei hochgeladen: ${filename}`;
                     addMessage(fileMessage, "user");
                     chatHistory.push({ sender: "user", message: fileMessage });
-                    fetchResponse(fileMessage);
                 });
-                if (message) {
-                    addMessage(message, "user");
-                    chatHistory.push({ sender: "user", message });
-                    fetchResponse(message);
-                }
+                // Sende nur eine fetchResponse-Anfrage nach dem Hochladen aller Dateien
+                fetchResponse(`Datei hochgeladen: ${data.filenames[data.filenames.length - 1]}`);
             } else {
                 addMessage("Fehler beim Hochladen der Dateien.", "bot");
             }
@@ -183,9 +172,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function fetchResponse(message) {
         if (message.includes("@") && message.includes(".")) {
-            localStorage.setItem("userEmail", message.trim());
+            const emailMatch = message.match(/[\w\.-]+@[\w\.-]+\.\w+/);
+            if (emailMatch) {
+                localStorage.setItem("userEmail", emailMatch[0]);
+            }
         }
-
+    
         fetch("https://ki-chatbot-13ko.onrender.com/chat", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -200,7 +192,7 @@ document.addEventListener("DOMContentLoaded", () => {
             console.log("DEBUG: Received data:", data);
             addMessage(data.response, "bot");
             chatHistory.push({ sender: "bot", message: data.response });
-
+    
             if (data.suggestion) {
                 addSuggestionButton(data.suggestion);
             }
