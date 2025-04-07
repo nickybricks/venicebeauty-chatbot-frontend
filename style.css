@@ -164,3 +164,20 @@ body {
     cursor: pointer;
     font-size: 12px;
 }
+
+.floating-suggestion-button {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1000;
+}
+
+.floating-suggestion-button:hover {
+    background-color: #218838;
+}
