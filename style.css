@@ -80,9 +80,11 @@ body {
 }
 
 .bot-message {
-    background-color: #fffce4;
-    color: #323232;
-    align-self: flex-start;
+    background-color: #f0f0f0;
+    color: #333;
+    padding: 10px;
+    border-radius: 5px;
+    margin: 5px 0;
 }
 
 .bot-message a {
@@ -97,9 +99,12 @@ body {
 }
 
 .user-message {
-    background-color: #ffaac3;
+    background-color: #007bff;
     color: white;
-    align-self: flex-end;
+    padding: 10px;
+    border-radius: 5px;
+    margin: 5px 0;
+    text-align: right;
 }
 
 .suggestion-button {
@@ -112,8 +117,9 @@ body {
     cursor: pointer;
     font-weight: bold;
 }
+
 .suggestion-button:hover {
-    background-color: #ffaac3;
+    background-color: #facfdc;
 }
 
 .file-name {
