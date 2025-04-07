@@ -187,13 +187,25 @@ document.addEventListener("DOMContentLoaded", () => {
             }
 
             // Verarbeite den Buffer mit Verzögerung
+            let currentText = fullMessage;
             while (buffer.length > 0) {
                 const content = buffer.shift();
-                fullMessage += content;
-                messageEl.innerHTML = renderMarkdown(fullMessage.replace(/\n\n/g, "<br><br>").replace(/\n/g, "<br>")); // Aktualisiere den Text schrittweise
+                currentText += content;
+                // Prüfe, ob ein Markdown-Link im aktuellen Text vorhanden ist
+                const linkMatch = currentText.match(/\[([^\]]+)\]\(([^)]+)\)/);
+                if (linkMatch) {
+                    const beforeLink = currentText.substring(0, linkMatch.index);
+                    const linkText = `<a href="${linkMatch[2]}" target="_blank">${linkMatch[1]}</a>`;
+                    const afterLink = currentText.substring(linkMatch.index + linkMatch[0].length);
+                    currentText = beforeLink + linkText + afterLink;
+                }
+                // Wandle den restlichen Text in HTML um
+                currentText = renderMarkdown(currentText.replace(/\n\n/g, "<br><br>").replace(/\n/g, "<br>"));
+                messageEl.innerHTML = currentText;
                 chatBody.scrollTop = chatBody.scrollHeight;
-                await new Promise(resolve => setTimeout(resolve, 100)); // Verzögerung von 50ms pro Chunk
+                await new Promise(resolve => setTimeout(resolve, 50)); // Verzögerung von 50ms pro Chunk
             }
+            fullMessage = currentText;
         }
     }
 
