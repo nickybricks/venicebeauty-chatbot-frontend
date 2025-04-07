@@ -178,7 +178,7 @@ document.addEventListener("DOMContentLoaded", () => {
                         messageEl.innerHTML = renderMarkdown(fullMessage.replace(/\n\n/g, "<br><br>").replace(/\n/g, "<br>"));
                         chatHistory.push({ sender: "bot", message: fullMessage });
                         if (data.suggestion) {
-                            console.log("DEBUG: Suggestion found:", data.suggestion);
+                            console.log("DEBUG: Suggestion received from server:", data.suggestion);
                             pendingSuggestion = data.suggestion; // Speichere den Vorschlag
                             showFloatingSuggestionButton(data.suggestion); // Zeige den floating Button
                         } else {
