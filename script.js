@@ -114,10 +114,18 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
+    // Funktion zum Umwandeln von Markdown-Links in HTML-Links
+    function renderMarkdownLinks(text) {
+        // Ersetze Markdown-Links [Text](URL) durch <a href="URL">Text</a>
+        return text.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank">$1</a>');
+    }
+
     function addMessage(text, sender) {
         const messageEl = document.createElement("div");
-        // Ersetze \n\n durch <br> für Absätze und \n durch <br> für Aufzählungszeichen
-        const formattedText = text.replace(/\n\n/g, "<br><br>").replace(/\n/g, "<br>");
+        // Ersetze \n\n durch <br><br> für Absätze und \n durch <br> für Aufzählungszeichen
+        let formattedText = text.replace(/\n\n/g, "<br><br>").replace(/\n/g, "<br>");
+        // Wandle Markdown-Links in HTML-Links um
+        formattedText = renderMarkdownLinks(formattedText);
         messageEl.innerHTML = formattedText;
         messageEl.className = sender === "user" ? "user-message" : "bot-message";
         chatBody.appendChild(messageEl);
@@ -163,7 +171,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     }
                     if (data.full_response) {
                         fullMessage = data.full_response;
-                        messageEl.innerHTML = fullMessage.replace(/\n\n/g, "<br><br>").replace(/\n/g, "<br>");
+                        messageEl.innerHTML = renderMarkdownLinks(fullMessage.replace(/\n\n/g, "<br><br>").replace(/\n/g, "<br>"));
                         chatHistory.push({ sender: "bot", message: fullMessage });
                         if (data.suggestion) {
                             console.log("DEBUG: Suggestion found:", data.suggestion);
@@ -179,7 +187,7 @@ document.addEventListener("DOMContentLoaded", () => {
             while (buffer.length > 0) {
                 const content = buffer.shift();
                 fullMessage += content;
-                messageEl.innerHTML = fullMessage.replace(/\n\n/g, "<br><br>").replace(/\n/g, "<br>"); // Aktualisiere den Text schrittweise
+                messageEl.innerHTML = renderMarkdownLinks(fullMessage.replace(/\n\n/g, "<br><br>").replace(/\n/g, "<br>")); // Aktualisiere den Text schrittweise
                 chatBody.scrollTop = chatBody.scrollHeight;
                 await new Promise(resolve => setTimeout(resolve, 50)); // Verzögerung von 50ms pro Chunk
             }
