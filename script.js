@@ -131,15 +131,15 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         }
 
-        const eventSource = new EventSource("https://ki-chatbot-13ko.onrender.com/chat", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                message: message,
-                email: localStorage.getItem("userEmail"),
-                chatHistory: chatHistory
-            })
+        // Sende die Daten als Query-Parameter
+        const params = new URLSearchParams({
+            message: message,
+            email: localStorage.getItem("userEmail") || "",
+            chatHistory: JSON.stringify(chatHistory)
         });
+        const url = `https://ki-chatbot-13ko.onrender.com/chat?${params.toString()}`;
+
+        const eventSource = new EventSource(url);
 
         let messageEl = addMessage("", "bot"); // Erstelle ein leeres Nachrichtenelement
         let fullMessage = "";
