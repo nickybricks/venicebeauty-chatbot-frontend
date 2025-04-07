@@ -215,6 +215,7 @@ document.addEventListener("DOMContentLoaded", () => {
         // Entferne vorhandene floating Buttons
         const existingButton = document.querySelector(".floating-suggestion-button");
         if (existingButton) {
+            console.log("DEBUG: Removing existing floating button");
             existingButton.remove();
         }
 
@@ -232,6 +233,7 @@ document.addEventListener("DOMContentLoaded", () => {
         button.style.borderRadius = "5px";
         button.style.cursor = "pointer";
         button.style.zIndex = "1000";
+        button.style.display = "block"; // Sicherstellen, dass der Button sichtbar ist
         button.onclick = () => {
             console.log("DEBUG: Floating suggestion button clicked:", suggestionText);
             addMessage(suggestionText, "user");
@@ -242,5 +244,7 @@ document.addEventListener("DOMContentLoaded", () => {
         };
         document.body.appendChild(button);
         console.log("DEBUG: Floating button added to DOM:", button);
+        console.log("DEBUG: Button visibility:", button.style.display);
+        console.log("DEBUG: Button position:", button.style.position, button.style.bottom, button.style.right);
     }
 });
