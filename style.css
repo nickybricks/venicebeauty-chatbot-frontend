@@ -85,6 +85,17 @@ body {
     align-self: flex-start;
 }
 
+.bot-message a {
+    color: #007bff; /* Blaue Farbe für Links */
+    text-decoration: underline; /* Unterstrichen */
+    font-weight: bold; /* Fett, um die Links hervorzuheben */
+}
+
+.bot-message a:hover {
+    color: #0056b3; /* Dunklere Farbe beim Hover */
+    text-decoration: none; /* Unterstreichung entfernen beim Hover */
+}
+
 .user-message {
     background-color: #ffaac3;
     color: white;
