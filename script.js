@@ -116,14 +116,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function addMessage(text, sender) {
         const messageEl = document.createElement("div");
-        messageEl.innerHTML = text;
+        // Ersetze \n\n durch <br> für Absätze und \n durch <br> für Aufzählungszeichen
+        const formattedText = text.replace(/\n\n/g, "<br><br>").replace(/\n/g, "<br>");
+        messageEl.innerHTML = formattedText;
         messageEl.className = sender === "user" ? "user-message" : "bot-message";
         chatBody.appendChild(messageEl);
         chatBody.scrollTop = chatBody.scrollHeight;
         return messageEl; // Rückgabe des Elements für die Streaming-Anzeige
     }
 
-    function fetchResponse(message) {
+    async function fetchResponse(message) {
         if (message.includes("@") && message.includes(".")) {
             const emailMatch = message.match(/[\w\.-]+@[\w\.-]+\.\w+/);
             if (emailMatch) {
@@ -131,45 +133,57 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         }
 
-        // Sende die Daten als Query-Parameter
-        const params = new URLSearchParams({
-            message: message,
-            email: localStorage.getItem("userEmail") || "",
-            chatHistory: JSON.stringify(chatHistory)
+        const response = await fetch("https://ki-chatbot-13ko.onrender.com/chat", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                message: message,
+                email: localStorage.getItem("userEmail"),
+                chatHistory: chatHistory
+            })
         });
-        const url = `https://ki-chatbot-13ko.onrender.com/chat?${params.toString()}`;
 
-        const eventSource = new EventSource(url);
-
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
         let messageEl = addMessage("", "bot"); // Erstelle ein leeres Nachrichtenelement
         let fullMessage = "";
+        let buffer = []; // Buffer für Chunks
 
-        eventSource.onmessage = (event) => {
-            const data = JSON.parse(event.data);
-            if (data.content) {
-                fullMessage += data.content;
-                messageEl.innerHTML = fullMessage; // Aktualisiere den Text schrittweise
-                chatBody.scrollTop = chatBody.scrollHeight;
-            }
-            if (data.full_response) {
-                fullMessage = data.full_response;
-                messageEl.innerHTML = fullMessage;
-                chatHistory.push({ sender: "bot", message: fullMessage });
-                if (data.suggestion) {
-                    console.log("DEBUG: Suggestion found:", data.suggestion);
-                    addSuggestionButton(data.suggestion);
-                } else {
-                    console.log("DEBUG: No suggestion found in response");
+        while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+
+            const chunk = decoder.decode(value);
+            const lines = chunk.split("\n\n");
+            for (const line of lines) {
+                if (line.startsWith("data: ")) {
+                    const data = JSON.parse(line.replace("data: ", ""));
+                    if (data.content) {
+                        buffer.push(data.content);
+                    }
+                    if (data.full_response) {
+                        fullMessage = data.full_response;
+                        messageEl.innerHTML = fullMessage.replace(/\n\n/g, "<br><br>").replace(/\n/g, "<br>");
+                        chatHistory.push({ sender: "bot", message: fullMessage });
+                        if (data.suggestion) {
+                            console.log("DEBUG: Suggestion found:", data.suggestion);
+                            addSuggestionButton(data.suggestion);
+                        } else {
+                            console.log("DEBUG: No suggestion found in response");
+                        }
+                    }
                 }
-                eventSource.close(); // Schließe die Verbindung, wenn die Antwort vollständig ist
             }
-        };
 
-        eventSource.onerror = (error) => {
-            console.error("DEBUG: EventSource error:", error);
-            messageEl.innerHTML = "Fehler bei der Verbindung zum Bot.";
-            eventSource.close();
-        };
+            // Verarbeite den Buffer mit Verzögerung
+            while (buffer.length > 0) {
+                const content = buffer.shift();
+                fullMessage += content;
+                messageEl.innerHTML = fullMessage.replace(/\n\n/g, "<br><br>").replace(/\n/g, "<br>"); // Aktualisiere den Text schrittweise
+                chatBody.scrollTop = chatBody.scrollHeight;
+                await new Promise(resolve => setTimeout(resolve, 50)); // Verzögerung von 50ms pro Chunk
+            }
+        }
     }
 
     function addSuggestionButton(suggestionText) {
