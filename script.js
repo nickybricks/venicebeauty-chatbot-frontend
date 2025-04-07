@@ -8,6 +8,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const fileInput = document.getElementById("file-input");
     let chatHistory = [];
     let selectedFiles = [];
+    let pendingSuggestion = null; // Variable, um den ausstehenden Vorschlag zu speichern
 
     chatToggle.onclick = () => {
         if (chatWindow.style.display === "none" || !chatWindow.style.display) {
@@ -178,7 +179,8 @@ document.addEventListener("DOMContentLoaded", () => {
                         chatHistory.push({ sender: "bot", message: fullMessage });
                         if (data.suggestion) {
                             console.log("DEBUG: Suggestion found:", data.suggestion);
-                            addSuggestionButton(data.suggestion);
+                            pendingSuggestion = data.suggestion; // Speichere den Vorschlag
+                            showFloatingSuggestionButton(data.suggestion); // Zeige den floating Button
                         } else {
                             console.log("DEBUG: No suggestion found in response");
                         }
@@ -209,22 +211,36 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    function addSuggestionButton(suggestionText) {
-        console.log("DEBUG: Adding suggestion button with text:", suggestionText);
+    function showFloatingSuggestionButton(suggestionText) {
+        // Entferne vorhandene floating Buttons
+        const existingButton = document.querySelector(".floating-suggestion-button");
+        if (existingButton) {
+            existingButton.remove();
+        }
+
+        // Erstelle einen neuen floating Button
         const button = document.createElement("button");
         button.textContent = suggestionText;
-        button.className = "suggestion-button";
-        button.style.display = "block";
-        button.style.margin = "10px 0";
+        button.className = "floating-suggestion-button";
+        button.style.position = "fixed";
+        button.style.bottom = "20px";
+        button.style.right = "20px";
+        button.style.backgroundColor = "#28a745";
+        button.style.color = "white";
+        button.style.border = "none";
+        button.style.padding = "10px 20px";
+        button.style.borderRadius = "5px";
+        button.style.cursor = "pointer";
+        button.style.zIndex = "1000";
         button.onclick = () => {
-            console.log("DEBUG: Suggestion button clicked:", suggestionText);
+            console.log("DEBUG: Floating suggestion button clicked:", suggestionText);
             addMessage(suggestionText, "user");
             chatHistory.push({ sender: "user", message: suggestionText });
-            button.remove();
+            button.remove(); // Entferne den Button nach dem Klick
+            pendingSuggestion = null; // Setze den ausstehenden Vorschlag zurück
             fetchResponse(suggestionText);
         };
-        chatBody.appendChild(button);
-        console.log("DEBUG: Button added to DOM:", button);
-        chatBody.scrollTop = chatBody.scrollHeight;
+        document.body.appendChild(button);
+        console.log("DEBUG: Floating button added to DOM:", button);
     }
 });
