@@ -58,11 +58,9 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     function updateInputField() {
-        // Behalte den Text vor den Dateien bei
         const textNodes = Array.from(chatInput.childNodes).filter(node => node.nodeType === Node.TEXT_NODE);
         const textContent = textNodes.map(node => node.textContent).join("").trim();
 
-        // Erstelle das Eingabefeld neu mit Text und Datei-Chips
         chatInput.innerHTML = "";
         if (textContent) {
             const textNode = document.createTextNode(textContent + " ");
@@ -98,7 +96,7 @@ document.addEventListener("DOMContentLoaded", () => {
         .then(res => res.json())
         .then(data => {
             if (data.success) {
-                console.log("Dateien erfolgreich hochgeladen:", data.filenames);
+                console.log("DEBUG: Files uploaded successfully:", data.filenames);
                 data.filenames.forEach(filename => {
                     const fileMessage = `Datei hochgeladen: ${filename}`;
                     addMessage(fileMessage, "user");
@@ -106,10 +104,12 @@ document.addEventListener("DOMContentLoaded", () => {
                 });
                 fetchResponse(`Datei hochgeladen: ${data.filenames[data.filenames.length - 1]}`);
             } else {
+                console.log("DEBUG: File upload failed:", data.error);
                 addMessage("Fehler beim Hochladen der Dateien.", "bot");
             }
         })
-        .catch(() => {
+        .catch((error) => {
+            console.error("DEBUG: Upload error:", error);
             addMessage("Fehler bei der Verbindung zum Server.", "bot");
         });
     }
@@ -119,7 +119,8 @@ document.addEventListener("DOMContentLoaded", () => {
         messageEl.innerHTML = text;
         messageEl.className = sender === "user" ? "user-message" : "bot-message";
         chatBody.appendChild(messageEl);
-        chatBody.scrollTop = chatBody.scrollTop + 1000;
+        chatBody.scrollTop = chatBody.scrollHeight;
+        return messageEl; // Rückgabe des Elements für die Streaming-Anzeige
     }
 
     function fetchResponse(message) {
@@ -130,41 +131,63 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         }
 
-        fetch("https://ki-chatbot-13ko.onrender.com/chat", {
+        const eventSource = new EventSource("https://ki-chatbot-13ko.onrender.com/chat", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
                 message: message,
                 email: localStorage.getItem("userEmail"),
                 chatHistory: chatHistory
-            }),
-        })
-        .then((res) => res.json())
-        .then((data) => {
-            console.log("DEBUG: Received data:", data);
-            addMessage(data.response, "bot");
-            chatHistory.push({ sender: "bot", message: data.response });
-
-            if (data.suggestion) {
-                addSuggestionButton(data.suggestion);
-            }
-        })
-        .catch(() => {
-            addMessage("Fehler bei der Verbindung zum Bot.", "bot");
+            })
         });
+
+        let messageEl = addMessage("", "bot"); // Erstelle ein leeres Nachrichtenelement
+        let fullMessage = "";
+
+        eventSource.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            if (data.content) {
+                fullMessage += data.content;
+                messageEl.innerHTML = fullMessage; // Aktualisiere den Text schrittweise
+                chatBody.scrollTop = chatBody.scrollHeight;
+            }
+            if (data.full_response) {
+                fullMessage = data.full_response;
+                messageEl.innerHTML = fullMessage;
+                chatHistory.push({ sender: "bot", message: fullMessage });
+                if (data.suggestion) {
+                    console.log("DEBUG: Suggestion found:", data.suggestion);
+                    addSuggestionButton(data.suggestion);
+                } else {
+                    console.log("DEBUG: No suggestion found in response");
+                }
+                eventSource.close(); // Schließe die Verbindung, wenn die Antwort vollständig ist
+            }
+        };
+
+        eventSource.onerror = (error) => {
+            console.error("DEBUG: EventSource error:", error);
+            messageEl.innerHTML = "Fehler bei der Verbindung zum Bot.";
+            eventSource.close();
+        };
     }
 
     function addSuggestionButton(suggestionText) {
+        console.log("DEBUG: Adding suggestion button with text:", suggestionText);
         const button = document.createElement("button");
         button.textContent = suggestionText;
         button.className = "suggestion-button";
+        button.style.display = "block";
+        button.style.margin = "10px 0";
         button.onclick = () => {
+            console.log("DEBUG: Suggestion button clicked:", suggestionText);
             addMessage(suggestionText, "user");
             chatHistory.push({ sender: "user", message: suggestionText });
             button.remove();
             fetchResponse(suggestionText);
         };
         chatBody.appendChild(button);
-        chatBody.scrollTop = chatBody.scrollTop + 1000;
+        console.log("DEBUG: Button added to DOM:", button);
+        chatBody.scrollTop = chatBody.scrollHeight;
     }
 });
