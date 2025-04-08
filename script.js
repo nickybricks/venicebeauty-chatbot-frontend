@@ -148,7 +148,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 localStorage.setItem("userEmail", email);  // Speichere die E-Mail-Adresse für zukünftige Nutzung
             }
         }
-
+    
         try {
             const response = await fetch("https://ki-chatbot-13ko.onrender.com/chat", {
                 method: "POST",
@@ -159,23 +159,23 @@ document.addEventListener("DOMContentLoaded", () => {
                     chatHistory: chatHistory
                 })
             });
-
+    
             if (!response.ok) {
                 console.error(`DEBUG: Fetch error: ${response.status} ${response.statusText}`);
                 addMessage("Fehler bei der Verbindung zum Server.", "bot");
                 return;
             }
-
+    
             const contentType = response.headers.get("content-type");
             console.log(`DEBUG: Response content-type: ${contentType}`);
-
+    
             if (contentType && contentType.includes("text/event-stream")) {
                 const reader = response.body.getReader();
                 const decoder = new TextDecoder();
                 let messageEl = addMessage("", "bot"); // Erstelle ein leeres Nachrichtenelement
                 let fullMessage = "";
                 let buffer = []; // Buffer für Chunks
-
+    
                 while (true) {
                     const { done, value } = await reader.read();
                     if (done) {
@@ -186,7 +186,7 @@ document.addEventListener("DOMContentLoaded", () => {
                         }
                         break;
                     }
-
+    
                     const chunk = decoder.decode(value);
                     console.log(`DEBUG: Received chunk: ${chunk}`);
                     const lines = chunk.split("\n\n");
@@ -199,6 +199,9 @@ document.addEventListener("DOMContentLoaded", () => {
                                 }
                                 if (data.full_response) {
                                     fullMessage = data.full_response;
+                                    // Entferne den Button-Text vollständig aus der Nachricht
+                                    fullMessage = fullMessage.replace(/\[suggestion_button:[^\]]+\]/g, "").trim();
+                                    fullMessage = fullMessage.replace(/\[Ja, bitte stornieren\]/g, "").trim();
                                     messageEl.innerHTML = renderMarkdown(fullMessage.replace(/\n\n/g, "<br><br>").replace(/\n/g, "<br>"));
                                     chatHistory.push({ sender: "bot", message: fullMessage });
                                     console.log(`DEBUG: Full response received: ${fullMessage}`);
@@ -215,7 +218,7 @@ document.addEventListener("DOMContentLoaded", () => {
                             }
                         }
                     }
-
+    
                     // Verarbeite den Buffer mit Verzögerung
                     let currentText = fullMessage;
                     while (buffer.length > 0) {
@@ -285,5 +288,5 @@ document.addEventListener("DOMContentLoaded", () => {
         console.log("DEBUG: Button parent:", button.parentNode);
     }
 
-    
+
 });
