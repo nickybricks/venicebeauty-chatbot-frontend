@@ -46,7 +46,7 @@ body {
 #chat-body {
     flex: 1;
     padding: 15px;
-    padding-bottom: 60px;
+    padding-bottom: 20px;
     position: relative; /* Relativer Kontext für z-index */
     overflow-y: auto;
     display: flex;
@@ -112,11 +112,11 @@ body {
     background-color: #28a745; /* Grün */
     color: white;
     border: none;
-    padding: 5px 10px; /* Kleiner Padding für kleineren Button */
-    font-size: 12px; /* Kleinere Schriftgröße */
-    border-radius: 10px; /* Abgerundete Ecken */
+    padding: 8px 12px; /* Kleiner Padding für kleineren Button */
+    font-size: 14px; /* Kleinere Schriftgröße */
+    border-radius: 4px; /* Abgerundete Ecken */
     cursor: pointer;
-    margin: 10px 0; /* Abstand oben und unten */
+    margin: 5px 0; /* Abstand oben und unten */
     display: block; /* Block-Element, um die Breite zu kontrollieren */
     width: fit-content; /* Breite passt sich dem Inhalt an */
     z-index: 10; /* Stelle sicher, dass der Button nicht verdeckt wird */
