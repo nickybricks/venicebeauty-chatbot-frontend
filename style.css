@@ -109,7 +109,7 @@ body {
 }
 
 .suggestion-button {
-    background-color: #28a745; /* Grün */
+    background-color: #ffaac3;
     color: white;
     border: none;
     padding: 8px 12px; /* Kleiner Padding für kleineren Button */
@@ -120,11 +120,14 @@ body {
     display: block; /* Block-Element, um die Breite zu kontrollieren */
     width: fit-content; /* Breite passt sich dem Inhalt an */
     z-index: 10; /* Stelle sicher, dass der Button nicht verdeckt wird */
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 
 .suggestion-button:hover {
-    background-color: #218838; /* Dunkleres Grün beim Hover */
+    background-color: #f885a8;
 }
 
 .file-name {
