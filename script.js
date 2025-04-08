@@ -205,7 +205,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 currentText = renderMarkdown(currentText.replace(/\n\n/g, "<br><br>").replace(/\n/g, "<br>"));
                 messageEl.innerHTML = currentText;
                 chatBody.scrollTop = chatBody.scrollHeight;
-                await new Promise(resolve => setTimeout(resolve, 50)); // Verzögerung von 50ms pro Chunk
+                await new Promise(resolve => setTimeout(resolve, 30)); // Verzögerung von 30ms pro Chunk
             }
             fullMessage = currentText;
         }
