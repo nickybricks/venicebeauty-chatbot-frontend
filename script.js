@@ -163,72 +163,84 @@ document.addEventListener("DOMContentLoaded", () => {
                 return;
             }
     
-            const reader = response.body.getReader();
-            const decoder = new TextDecoder();
-            let messageEl = addMessage("", "bot"); // Erstelle ein leeres Nachrichtenelement
-            let fullMessage = "";
-            let buffer = []; // Buffer für Chunks
+            const contentType = response.headers.get("content-type");
+            console.log(`DEBUG: Response content-type: ${contentType}`);
     
-            while (true) {
-                const { done, value } = await reader.read();
-                if (done) {
-                    console.log("DEBUG: Stream completed");
-                    if (!fullMessage) {
-                        console.error("DEBUG: Stream completed with no response");
-                        addMessage("Es tut mir leid, ich konnte keine Antwort generieren. Bitte versuche es erneut.", "bot");
+            if (contentType && contentType.includes("text/event-stream")) {
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                let messageEl = addMessage("", "bot"); // Erstelle ein leeres Nachrichtenelement
+                let fullMessage = "";
+                let buffer = []; // Buffer für Chunks
+    
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) {
+                        console.log("DEBUG: Stream completed");
+                        if (!fullMessage) {
+                            console.error("DEBUG: Stream completed with no response");
+                            addMessage("Es tut mir leid, ich konnte keine Antwort generieren. Bitte versuche es erneut.", "bot");
+                        }
+                        break;
                     }
-                    break;
-                }
     
-                const chunk = decoder.decode(value);
-                console.log(`DEBUG: Received chunk: ${chunk}`);
-                const lines = chunk.split("\n\n");
-                for (const line of lines) {
-                    if (line.startsWith("data: ")) {
-                        try {
-                            const data = JSON.parse(line.replace("data: ", ""));
-                            if (data.content) {
-                                buffer.push(data.content);
-                            }
-                            if (data.full_response) {
-                                fullMessage = data.full_response;
-                                messageEl.innerHTML = renderMarkdown(fullMessage.replace(/\n\n/g, "<br><br>").replace(/\n/g, "<br>"));
-                                chatHistory.push({ sender: "bot", message: fullMessage });
-                                console.log(`DEBUG: Full response received: ${fullMessage}`);
-                                if (data.suggestion) {
-                                    console.log("DEBUG: Suggestion received from server:", data.suggestion);
-                                    pendingSuggestion = data.suggestion; // Speichere den Vorschlag
-                                    showFloatingSuggestionButton(data.suggestion); // Zeige den floating Button
-                                } else {
-                                    console.log("DEBUG: No suggestion found in response");
+                    const chunk = decoder.decode(value);
+                    console.log(`DEBUG: Received chunk: ${chunk}`);
+                    const lines = chunk.split("\n\n");
+                    for (const line of lines) {
+                        if (line.startsWith("data: ")) {
+                            try {
+                                const data = JSON.parse(line.replace("data: ", ""));
+                                if (data.content) {
+                                    buffer.push(data.content);
                                 }
+                                if (data.full_response) {
+                                    fullMessage = data.full_response;
+                                    messageEl.innerHTML = renderMarkdown(fullMessage.replace(/\n\n/g, "<br><br>").replace(/\n/g, "<br>"));
+                                    chatHistory.push({ sender: "bot", message: fullMessage });
+                                    console.log(`DEBUG: Full response received: ${fullMessage}`);
+                                    if (data.suggestion) {
+                                        console.log("DEBUG: Suggestion received from server:", data.suggestion);
+                                        pendingSuggestion = data.suggestion; // Speichere den Vorschlag
+                                        showFloatingSuggestionButton(data.suggestion); // Zeige den floating Button
+                                    } else {
+                                        console.log("DEBUG: No suggestion found in response");
+                                    }
+                                }
+                            } catch (e) {
+                                console.error(`DEBUG: Error parsing chunk: ${line}, Error: ${e}`);
                             }
-                        } catch (e) {
-                            console.error(`DEBUG: Error parsing chunk: ${line}, Error: ${e}`);
                         }
                     }
-                }
     
-                // Verarbeite den Buffer mit Verzögerung
-                let currentText = fullMessage;
-                while (buffer.length > 0) {
-                    const content = buffer.shift();
-                    currentText += content;
-                    // Prüfe, ob ein Markdown-Link im aktuellen Text vorhanden ist
-                    const linkMatch = currentText.match(/\[([^\]]+)\]\(([^)]+)\)/);
-                    if (linkMatch) {
-                        const beforeLink = currentText.substring(0, linkMatch.index);
-                        const linkText = `<a href="${linkMatch[2]}" target="_blank">${linkMatch[1]}</a>`;
-                        const afterLink = currentText.substring(linkMatch.index + linkMatch[0].length);
-                        currentText = beforeLink + linkText + afterLink;
+                    // Verarbeite den Buffer mit Verzögerung
+                    let currentText = fullMessage;
+                    while (buffer.length > 0) {
+                        const content = buffer.shift();
+                        currentText += content;
+                        // Prüfe, ob ein Markdown-Link im aktuellen Text vorhanden ist
+                        const linkMatch = currentText.match(/\[([^\]]+)\]\(([^)]+)\)/);
+                        if (linkMatch) {
+                            const beforeLink = currentText.substring(0, linkMatch.index);
+                            const linkText = `<a href="${linkMatch[2]}" target="_blank">${linkMatch[1]}</a>`;
+                            const afterLink = currentText.substring(linkMatch.index + linkMatch[0].length);
+                            currentText = beforeLink + linkText + afterLink;
+                        }
+                        // Wandle den restlichen Text in HTML um
+                        currentText = renderMarkdown(currentText.replace(/\n\n/g, "<br><br>").replace(/\n/g, "<br>"));
+                        messageEl.innerHTML = currentText;
+                        chatBody.scrollTop = chatBody.scrollHeight;
+                        await new Promise(resolve => setTimeout(resolve, 50)); // Verzögerung von 50ms pro Chunk
                     }
-                    // Wandle den restlichen Text in HTML um
-                    currentText = renderMarkdown(currentText.replace(/\n\n/g, "<br><br>").replace(/\n/g, "<br>"));
-                    messageEl.innerHTML = currentText;
-                    chatBody.scrollTop = chatBody.scrollHeight;
-                    await new Promise(resolve => setTimeout(resolve, 50)); // Verzögerung von 50ms pro Chunk
+                    fullMessage = currentText;
                 }
-                fullMessage = currentText;
+            } else {
+                // Fallback für text/plain Antworten
+                console.log("DEBUG: Response is not an event-stream, treating as text/plain");
+                const text = await response.text();
+                console.log(`DEBUG: Received text response: ${text}`);
+                addMessage(text, "bot");
+                chatHistory.push({ sender: "bot", message: text });
             }
         } catch (error) {
             console.error(`DEBUG: Fetch error: ${error}`);
