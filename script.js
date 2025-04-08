@@ -258,7 +258,7 @@ document.addEventListener("DOMContentLoaded", () => {
             console.log("DEBUG: Removing existing suggestion button");
             existingButton.remove();
         }
-
+    
         // Erstelle einen neuen Button
         const button = document.createElement("button");
         button.textContent = suggestionText;
@@ -271,10 +271,19 @@ document.addEventListener("DOMContentLoaded", () => {
             pendingSuggestion = null; // Setze den ausstehenden Vorschlag zurück
             fetchResponse(suggestionText);
         };
-
+    
         // Füge den Button oberhalb des Eingabefelds hinzu
-        const chatInputContainer = document.querySelector(".chat-input-container");
+        const chatInputContainer = document.querySelector("#chat-input-container");
+        if (!chatInputContainer) {
+            console.error("DEBUG: chat-input-container not found in DOM");
+            return;
+        }
         chatInputContainer.parentNode.insertBefore(button, chatInputContainer);
         console.log("DEBUG: Suggestion button added to DOM:", button);
+        console.log("DEBUG: Button visibility:", button.style.display || "default (block)");
+        console.log("DEBUG: Button position:", button.offsetTop, button.offsetLeft);
+        console.log("DEBUG: Button parent:", button.parentNode);
     }
+
+    
 });
