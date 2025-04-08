@@ -134,6 +134,7 @@ document.addEventListener("DOMContentLoaded", () => {
         messageEl.className = sender === "user" ? "user-message" : "bot-message";
         chatBody.appendChild(messageEl);
         chatBody.scrollTop = chatBody.scrollHeight;
+        console.log(`DEBUG: Added message to DOM: ${formattedText} (Sender: ${sender})`);
         return messageEl; // Rückgabe des Elements für die Streaming-Anzeige
     }
 
@@ -144,70 +145,94 @@ document.addEventListener("DOMContentLoaded", () => {
                 localStorage.setItem("userEmail", emailMatch[0]);
             }
         }
-
-        const response = await fetch("https://ki-chatbot-13ko.onrender.com/chat", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                message: message,
-                email: localStorage.getItem("userEmail"),
-                chatHistory: chatHistory
-            })
-        });
-
-        const reader = response.body.getReader();
-        const decoder = new TextDecoder();
-        let messageEl = addMessage("", "bot"); // Erstelle ein leeres Nachrichtenelement
-        let fullMessage = "";
-        let buffer = []; // Buffer für Chunks
-
-        while (true) {
-            const { done, value } = await reader.read();
-            if (done) break;
-
-            const chunk = decoder.decode(value);
-            const lines = chunk.split("\n\n");
-            for (const line of lines) {
-                if (line.startsWith("data: ")) {
-                    const data = JSON.parse(line.replace("data: ", ""));
-                    if (data.content) {
-                        buffer.push(data.content);
+    
+        try {
+            const response = await fetch("https://ki-chatbot-13ko.onrender.com/chat", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    message: message,
+                    email: localStorage.getItem("userEmail"),
+                    chatHistory: chatHistory
+                })
+            });
+    
+            if (!response.ok) {
+                console.error(`DEBUG: Fetch error: ${response.status} ${response.statusText}`);
+                addMessage("Fehler bei der Verbindung zum Server.", "bot");
+                return;
+            }
+    
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder();
+            let messageEl = addMessage("", "bot"); // Erstelle ein leeres Nachrichtenelement
+            let fullMessage = "";
+            let buffer = []; // Buffer für Chunks
+    
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) {
+                    console.log("DEBUG: Stream completed");
+                    if (!fullMessage) {
+                        console.error("DEBUG: Stream completed with no response");
+                        addMessage("Es tut mir leid, ich konnte keine Antwort generieren. Bitte versuche es erneut.", "bot");
                     }
-                    if (data.full_response) {
-                        fullMessage = data.full_response;
-                        messageEl.innerHTML = renderMarkdown(fullMessage.replace(/\n\n/g, "<br><br>").replace(/\n/g, "<br>"));
-                        chatHistory.push({ sender: "bot", message: fullMessage });
-                        if (data.suggestion) {
-                            console.log("DEBUG: Suggestion received from server:", data.suggestion);
-                            pendingSuggestion = data.suggestion; // Speichere den Vorschlag
-                            showFloatingSuggestionButton(data.suggestion); // Zeige den floating Button
-                        } else {
-                            console.log("DEBUG: No suggestion found in response");
+                    break;
+                }
+    
+                const chunk = decoder.decode(value);
+                console.log(`DEBUG: Received chunk: ${chunk}`);
+                const lines = chunk.split("\n\n");
+                for (const line of lines) {
+                    if (line.startsWith("data: ")) {
+                        try {
+                            const data = JSON.parse(line.replace("data: ", ""));
+                            if (data.content) {
+                                buffer.push(data.content);
+                            }
+                            if (data.full_response) {
+                                fullMessage = data.full_response;
+                                messageEl.innerHTML = renderMarkdown(fullMessage.replace(/\n\n/g, "<br><br>").replace(/\n/g, "<br>"));
+                                chatHistory.push({ sender: "bot", message: fullMessage });
+                                console.log(`DEBUG: Full response received: ${fullMessage}`);
+                                if (data.suggestion) {
+                                    console.log("DEBUG: Suggestion received from server:", data.suggestion);
+                                    pendingSuggestion = data.suggestion; // Speichere den Vorschlag
+                                    showFloatingSuggestionButton(data.suggestion); // Zeige den floating Button
+                                } else {
+                                    console.log("DEBUG: No suggestion found in response");
+                                }
+                            }
+                        } catch (e) {
+                            console.error(`DEBUG: Error parsing chunk: ${line}, Error: ${e}`);
                         }
                     }
                 }
-            }
-
-            // Verarbeite den Buffer mit Verzögerung
-            let currentText = fullMessage;
-            while (buffer.length > 0) {
-                const content = buffer.shift();
-                currentText += content;
-                // Prüfe, ob ein Markdown-Link im aktuellen Text vorhanden ist
-                const linkMatch = currentText.match(/\[([^\]]+)\]\(([^)]+)\)/);
-                if (linkMatch) {
-                    const beforeLink = currentText.substring(0, linkMatch.index);
-                    const linkText = `<a href="${linkMatch[2]}" target="_blank">${linkMatch[1]}</a>`;
-                    const afterLink = currentText.substring(linkMatch.index + linkMatch[0].length);
-                    currentText = beforeLink + linkText + afterLink;
+    
+                // Verarbeite den Buffer mit Verzögerung
+                let currentText = fullMessage;
+                while (buffer.length > 0) {
+                    const content = buffer.shift();
+                    currentText += content;
+                    // Prüfe, ob ein Markdown-Link im aktuellen Text vorhanden ist
+                    const linkMatch = currentText.match(/\[([^\]]+)\]\(([^)]+)\)/);
+                    if (linkMatch) {
+                        const beforeLink = currentText.substring(0, linkMatch.index);
+                        const linkText = `<a href="${linkMatch[2]}" target="_blank">${linkMatch[1]}</a>`;
+                        const afterLink = currentText.substring(linkMatch.index + linkMatch[0].length);
+                        currentText = beforeLink + linkText + afterLink;
+                    }
+                    // Wandle den restlichen Text in HTML um
+                    currentText = renderMarkdown(currentText.replace(/\n\n/g, "<br><br>").replace(/\n/g, "<br>"));
+                    messageEl.innerHTML = currentText;
+                    chatBody.scrollTop = chatBody.scrollHeight;
+                    await new Promise(resolve => setTimeout(resolve, 50)); // Verzögerung von 50ms pro Chunk
                 }
-                // Wandle den restlichen Text in HTML um
-                currentText = renderMarkdown(currentText.replace(/\n\n/g, "<br><br>").replace(/\n/g, "<br>"));
-                messageEl.innerHTML = currentText;
-                chatBody.scrollTop = chatBody.scrollHeight;
-                await new Promise(resolve => setTimeout(resolve, 30)); // Verzögerung von 30ms pro Chunk
+                fullMessage = currentText;
             }
-            fullMessage = currentText;
+        } catch (error) {
+            console.error(`DEBUG: Fetch error: ${error}`);
+            addMessage("Fehler bei der Verbindung zum Server.", "bot");
         }
     }
 
