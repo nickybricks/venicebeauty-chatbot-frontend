@@ -46,6 +46,7 @@ body {
 #chat-body {
     flex: 1;
     padding: 15px;
+    padding-bottom: 60px;
     overflow-y: auto;
     display: flex;
     flex-direction: column;
@@ -54,9 +55,12 @@ body {
 
 #chat-input-container {
     display: flex;
+    position: sticky;
+    bottom: 0;
+    background-color: white;
+    padding: 10px;
+    border-top: 1px solid #ddd;
     align-items: center;
-    padding: 8px;
-    background-color: #fffce4;
     gap: 6px;
 }
 
@@ -103,17 +107,25 @@ body {
 }
 
 .suggestion-button {
-    margin: 10px 0;
-    padding: 8px 14px;
-    background-color: #ffaac3;
-    border: none;
-    border-radius: 18px;
+    background-color: #28a745; /* Grün */
     color: white;
+    border: none;
+    padding: 5px 10px; /* Kleiner Padding für kleineren Button */
+    font-size: 12px; /* Kleinere Schriftgröße */
+    border-radius: 10px; /* Abgerundete Ecken */
     cursor: pointer;
-    font-weight: bold;
+    margin: 10px 0; /* Abstand oben und unten */
+    display: block; /* Block-Element, um die Breite zu kontrollieren */
+    width: fit-content; /* Breite passt sich dem Inhalt an */
+    animation: fadeIn 0.3s ease-in;
 }
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
 .suggestion-button:hover {
-    background-color: #ffaac3;
+    background-color: #218838; /* Dunkleres Grün beim Hover */
 }
 
 .file-name {
