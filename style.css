@@ -47,6 +47,7 @@ body {
     flex: 1;
     padding: 15px;
     padding-bottom: 60px;
+    position: relative; /* Relativer Kontext für z-index */
     overflow-y: auto;
     display: flex;
     flex-direction: column;
@@ -62,6 +63,7 @@ body {
     border-top: 1px solid #ddd;
     align-items: center;
     gap: 6px;
+    z-index: 5; /* Niedrigerer z-index als der Button */
 }
 
 
@@ -117,12 +119,9 @@ body {
     margin: 10px 0; /* Abstand oben und unten */
     display: block; /* Block-Element, um die Breite zu kontrollieren */
     width: fit-content; /* Breite passt sich dem Inhalt an */
-    animation: fadeIn 0.3s ease-in;
+    z-index: 10; /* Stelle sicher, dass der Button nicht verdeckt wird */
 }
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
+
 
 .suggestion-button:hover {
     background-color: #218838; /* Dunkleres Grün beim Hover */
