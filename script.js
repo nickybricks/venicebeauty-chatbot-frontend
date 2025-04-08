@@ -139,40 +139,43 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     async function fetchResponse(message) {
+        // Extrahiere E-Mail-Adresse aus der aktuellen Nachricht, falls vorhanden
+        let email = null;
         if (message.includes("@") && message.includes(".")) {
             const emailMatch = message.match(/[\w\.-]+@[\w\.-]+\.\w+/);
             if (emailMatch) {
-                localStorage.setItem("userEmail", emailMatch[0]);
+                email = emailMatch[0];
+                localStorage.setItem("userEmail", email);  // Speichere die E-Mail-Adresse für zukünftige Nutzung
             }
         }
-    
+
         try {
             const response = await fetch("https://ki-chatbot-13ko.onrender.com/chat", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     message: message,
-                    email: localStorage.getItem("userEmail"),
+                    email: email,  // Sende nur die E-Mail-Adresse, die in der aktuellen Nachricht enthalten ist
                     chatHistory: chatHistory
                 })
             });
-    
+
             if (!response.ok) {
                 console.error(`DEBUG: Fetch error: ${response.status} ${response.statusText}`);
                 addMessage("Fehler bei der Verbindung zum Server.", "bot");
                 return;
             }
-    
+
             const contentType = response.headers.get("content-type");
             console.log(`DEBUG: Response content-type: ${contentType}`);
-    
+
             if (contentType && contentType.includes("text/event-stream")) {
                 const reader = response.body.getReader();
                 const decoder = new TextDecoder();
                 let messageEl = addMessage("", "bot"); // Erstelle ein leeres Nachrichtenelement
                 let fullMessage = "";
                 let buffer = []; // Buffer für Chunks
-    
+
                 while (true) {
                     const { done, value } = await reader.read();
                     if (done) {
@@ -183,7 +186,7 @@ document.addEventListener("DOMContentLoaded", () => {
                         }
                         break;
                     }
-    
+
                     const chunk = decoder.decode(value);
                     console.log(`DEBUG: Received chunk: ${chunk}`);
                     const lines = chunk.split("\n\n");
@@ -202,7 +205,7 @@ document.addEventListener("DOMContentLoaded", () => {
                                     if (data.suggestion) {
                                         console.log("DEBUG: Suggestion received from server:", data.suggestion);
                                         pendingSuggestion = data.suggestion; // Speichere den Vorschlag
-                                        showFloatingSuggestionButton(data.suggestion); // Zeige den floating Button
+                                        showSuggestionButton(data.suggestion); // Zeige den Button oberhalb des Eingabefelds
                                     } else {
                                         console.log("DEBUG: No suggestion found in response");
                                     }
@@ -212,7 +215,7 @@ document.addEventListener("DOMContentLoaded", () => {
                             }
                         }
                     }
-    
+
                     // Verarbeite den Buffer mit Verzögerung
                     let currentText = fullMessage;
                     while (buffer.length > 0) {
@@ -248,40 +251,30 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    function showFloatingSuggestionButton(suggestionText) {
-        // Entferne vorhandene floating Buttons
-        const existingButton = document.querySelector(".floating-suggestion-button");
+    function showSuggestionButton(suggestionText) {
+        // Entferne vorhandene Suggestion-Buttons
+        const existingButton = document.querySelector(".suggestion-button");
         if (existingButton) {
-            console.log("DEBUG: Removing existing floating button");
+            console.log("DEBUG: Removing existing suggestion button");
             existingButton.remove();
         }
 
-        // Erstelle einen neuen floating Button
+        // Erstelle einen neuen Button
         const button = document.createElement("button");
         button.textContent = suggestionText;
-        button.className = "floating-suggestion-button";
-        button.style.position = "fixed";
-        button.style.bottom = "20px";
-        button.style.right = "20px";
-        button.style.backgroundColor = "#28a745";
-        button.style.color = "white";
-        button.style.border = "none";
-        button.style.padding = "10px 20px";
-        button.style.borderRadius = "5px";
-        button.style.cursor = "pointer";
-        button.style.zIndex = "1000";
-        button.style.display = "block"; // Sicherstellen, dass der Button sichtbar ist
+        button.className = "suggestion-button";
         button.onclick = () => {
-            console.log("DEBUG: Floating suggestion button clicked:", suggestionText);
+            console.log("DEBUG: Suggestion button clicked:", suggestionText);
             addMessage(suggestionText, "user");
             chatHistory.push({ sender: "user", message: suggestionText });
             button.remove(); // Entferne den Button nach dem Klick
             pendingSuggestion = null; // Setze den ausstehenden Vorschlag zurück
             fetchResponse(suggestionText);
         };
-        document.body.appendChild(button);
-        console.log("DEBUG: Floating button added to DOM:", button);
-        console.log("DEBUG: Button visibility:", button.style.display);
-        console.log("DEBUG: Button position:", button.style.position, button.style.bottom, button.style.right);
+
+        // Füge den Button oberhalb des Eingabefelds hinzu
+        const chatInputContainer = document.querySelector(".chat-input-container");
+        chatInputContainer.parentNode.insertBefore(button, chatInputContainer);
+        console.log("DEBUG: Suggestion button added to DOM:", button);
     }
 });
