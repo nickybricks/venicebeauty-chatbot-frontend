@@ -116,7 +116,7 @@ body {
     font-size: 14px; /* Kleinere Schriftgröße */
     border-radius: 4px; /* Abgerundete Ecken */
     cursor: pointer;
-    margin: 5px 0; /* Abstand oben und unten */
+    margin: 10px auto;    
     display: block; /* Block-Element, um die Breite zu kontrollieren */
     width: fit-content; /* Breite passt sich dem Inhalt an */
     z-index: 10; /* Stelle sicher, dass der Button nicht verdeckt wird */
