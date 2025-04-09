@@ -90,6 +90,7 @@ body {
     align-self: flex-start;
     margin: 0; /* Sicherstellen, dass der Margin der bot-message 0 ist */
     position: relative; /* Relativer Kontext für die Animation */
+    display: inline-block; /* Inline-block, um die Nachricht korrekt anzuzeigen */
 }
 
 .bot-message a {
