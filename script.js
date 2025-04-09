@@ -112,11 +112,14 @@ document.addEventListener("DOMContentLoaded", () => {
                 <span class="dot"></span>
             </div>
         `;
+        // Stelle sicher, dass die Animation sichtbar ist
+        loadingAnimation.style.display = 'block';
+        loadingAnimation.style.visibility = 'visible';
         // Füge die Animation in den chat-body ein
         chatBody.appendChild(loadingAnimation);
         console.log("DEBUG: Loading animation added to chat-body:", loadingAnimation);
         console.log("DEBUG: Loading animation display:", loadingAnimation.style.display);
-        console.log("DEBUG: Loading animation visibility:", loadingAnimation.style.visibility || "default (visible)");
+        console.log("DEBUG: Loading animation visibility:", loadingAnimation.style.visibility);
         console.log("DEBUG: Loading animation position:", loadingAnimation.offsetTop, loadingAnimation.offsetLeft);
         // Position der letzten Bot-Nachricht für Vergleich
         const lastBotMessage = chatBody.querySelector(".bot-message:last-of-type");
