@@ -22,7 +22,8 @@ document.addEventListener("DOMContentLoaded", () => {
             console.log("DEBUG: Chat window displayed");
             if (!chatBody.hasChildNodes()) {
                 console.log("DEBUG: Chat body is empty, adding welcome message");
-                addMessage("Hallo! 👋 Wie kann ich dir helfen? Falls es um deine Bestellung geht, gib bitte sowohl deine Bestellnummer als auch die E-Mail-Adresse an, mit der du bestellt hast.", "bot");
+                const welcomeMessage = "Hallo! 👋 Wie kann ich dir helfen? Falls es um deine Bestellung geht, gib bitte sowohl deine Bestellnummer als auch die E-Mail-Adresse an, mit der du bestellt hast.";
+                addMessage(welcomeMessage, "bot");
             }
         } else {
             chatWindow.style.display = "none";
