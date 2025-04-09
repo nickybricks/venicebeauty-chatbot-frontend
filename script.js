@@ -6,6 +6,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const sendBtn = document.getElementById("send-btn");
     const uploadBtn = document.getElementById("upload-btn");
     const fileInput = document.getElementById("file-input");
+    const loadingAnimation = document.getElementById("loading-animation");
     let chatHistory = [];
     let selectedFiles = [];
     let pendingSuggestion = null; // Variable, um den ausstehenden Vorschlag zu speichern
@@ -36,10 +37,18 @@ document.addEventListener("DOMContentLoaded", () => {
             if (textContent) {
                 addMessage(textContent, "user");
                 chatHistory.push({ sender: "user", message: textContent });
-                fetchResponse(textContent);
+                // Ladeanimation anzeigen und Anfrage verzögern
+                showLoadingAnimation();
+                setTimeout(() => {
+                    fetchResponse(textContent);
+                }, 2000); // 2 Sekunden Verzögerung
             }
             if (selectedFiles.length > 0) {
-                uploadFiles(selectedFiles, textContent);
+                // Ladeanimation anzeigen und Anfrage verzögern
+                showLoadingAnimation();
+                setTimeout(() => {
+                    uploadFiles(selectedFiles, textContent);
+                }, 2000); // 2 Sekunden Verzögerung
             }
             selectedFiles = [];
             fileInput.value = "";
@@ -82,6 +91,17 @@ document.addEventListener("DOMContentLoaded", () => {
         updateInputField();
     };
 
+    // Funktion zum Anzeigen der Ladeanimation
+    function showLoadingAnimation() {
+        loadingAnimation.style.display = 'flex';
+        chatBody.scrollTop = chatBody.scrollHeight;
+    }
+
+    // Funktion zum Ausblenden der Ladeanimation
+    function hideLoadingAnimation() {
+        loadingAnimation.style.display = 'none';
+    }
+
     function uploadFiles(files, message) {
         const formData = new FormData();
         files.forEach((file, index) => {
@@ -112,6 +132,9 @@ document.addEventListener("DOMContentLoaded", () => {
         .catch((error) => {
             console.error("DEBUG: Upload error:", error);
             addMessage("Fehler bei der Verbindung zum Server.", "bot");
+        })
+        .finally(() => {
+            hideLoadingAnimation();
         });
     }
 
@@ -252,6 +275,9 @@ document.addEventListener("DOMContentLoaded", () => {
             console.error(`DEBUG: Fetch error: ${error}`);
             addMessage("Fehler bei der Verbindung zum Server.", "bot");
         }
+        finally {
+            hideLoadingAnimation();
+        }
     }
 
     function showSuggestionButton(suggestionText) {
@@ -272,7 +298,11 @@ document.addEventListener("DOMContentLoaded", () => {
             chatHistory.push({ sender: "user", message: suggestionText });
             button.remove(); // Entferne den Button nach dem Klick
             pendingSuggestion = null; // Setze den ausstehenden Vorschlag zurück
-            fetchResponse(suggestionText);
+            // Ladeanimation anzeigen und Anfrage verzögern
+            showLoadingAnimation();
+            setTimeout(() => {
+                fetchResponse(suggestionText);
+            }, 2000); // 2 Sekunden Verzögerung
         };
     
         // Füge den Button oberhalb des Eingabefelds hinzu
@@ -287,6 +317,4 @@ document.addEventListener("DOMContentLoaded", () => {
         console.log("DEBUG: Button position:", button.offsetTop, button.offsetLeft);
         console.log("DEBUG: Button parent:", button.parentNode);
     }
-
-
 });
