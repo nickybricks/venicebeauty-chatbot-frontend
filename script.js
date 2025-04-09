@@ -11,6 +11,13 @@ document.addEventListener("DOMContentLoaded", () => {
     let selectedFiles = [];
     let pendingSuggestion = null; // Variable, um den ausstehenden Vorschlag zu speichern
 
+    // Debugging: Überprüfen, ob die Animationselemente im DOM vorhanden sind
+    console.log("DEBUG: Loading animation element:", loadingAnimation);
+    const grokDots = loadingAnimation ? loadingAnimation.querySelector(".grok-dots") : null;
+    console.log("DEBUG: Grok dots container:", grokDots);
+    const dots = grokDots ? grokDots.querySelectorAll(".dot") : [];
+    console.log("DEBUG: Dots:", dots);
+
     chatToggle.onclick = () => {
         if (chatWindow.style.display === "none" || !chatWindow.style.display) {
             chatWindow.style.display = "flex";
@@ -94,18 +101,26 @@ document.addEventListener("DOMContentLoaded", () => {
     // Funktion zum Anzeigen der Ladeanimation
     function showLoadingAnimation() {
         console.log("DEBUG: Showing loading animation");
-        loadingAnimation.style.display = 'flex';
-        console.log("DEBUG: Loading animation display:", loadingAnimation.style.display);
-        console.log("DEBUG: Loading animation visibility:", loadingAnimation.style.visibility || "default (visible)");
-        console.log("DEBUG: Loading animation position:", loadingAnimation.offsetTop, loadingAnimation.offsetLeft);
-        chatBody.scrollTop = chatBody.scrollHeight;
+        if (loadingAnimation) {
+            loadingAnimation.style.display = 'flex';
+            console.log("DEBUG: Loading animation display:", loadingAnimation.style.display);
+            console.log("DEBUG: Loading animation visibility:", loadingAnimation.style.visibility || "default (visible)");
+            console.log("DEBUG: Loading animation position:", loadingAnimation.offsetTop, loadingAnimation.offsetLeft);
+            chatBody.scrollTop = chatBody.scrollHeight;
+        } else {
+            console.error("DEBUG: Loading animation element not found in DOM");
+        }
     }
 
     // Funktion zum Ausblenden der Ladeanimation
     function hideLoadingAnimation() {
         console.log("DEBUG: Hiding loading animation");
-        loadingAnimation.style.display = 'none';
-        console.log("DEBUG: Loading animation display:", loadingAnimation.style.display);
+        if (loadingAnimation) {
+            loadingAnimation.style.display = 'none';
+            console.log("DEBUG: Loading animation display:", loadingAnimation.style.display);
+        } else {
+            console.error("DEBUG: Loading animation element not found in DOM");
+        }
     }
 
     function uploadFiles(files, message) {
