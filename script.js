@@ -118,22 +118,20 @@ document.addEventListener("DOMContentLoaded", () => {
             </div>
         `;
         // Stelle sicher, dass die Animation sichtbar ist
-        loadingAnimation.style.display = 'block';
+        loadingAnimation.style.display = 'inline-block';
         loadingAnimation.style.visibility = 'visible';
-        // Füge die Animation direkt vor der neuen Nachricht ein
+        // Füge die Animation in die aktuelle Nachricht ein
         if (currentMessageEl) {
-            chatBody.insertBefore(loadingAnimation, currentMessageEl);
-        } else {
-            chatBody.appendChild(loadingAnimation);
+            currentMessageEl.innerHTML = ''; // Leere die Nachricht, um sicherzustellen, dass die Animation zuerst angezeigt wird
+            currentMessageEl.appendChild(loadingAnimation);
         }
-        console.log("DEBUG: Loading animation added to chat-body:", loadingAnimation);
+        console.log("DEBUG: Loading animation added to current message:", loadingAnimation);
         console.log("DEBUG: Loading animation display:", loadingAnimation.style.display);
         console.log("DEBUG: Loading animation visibility:", loadingAnimation.style.visibility);
         console.log("DEBUG: Loading animation position:", loadingAnimation.offsetTop, loadingAnimation.offsetLeft);
-        // Position der letzten Bot-Nachricht für Vergleich
-        const lastBotMessage = chatBody.querySelector(".bot-message:last-of-type");
-        if (lastBotMessage) {
-            console.log("DEBUG: Last bot message position:", lastBotMessage.offsetTop, lastBotMessage.offsetLeft);
+        // Position der aktuellen Nachricht für Vergleich
+        if (currentMessageEl) {
+            console.log("DEBUG: Current message position:", currentMessageEl.offsetTop, currentMessageEl.offsetLeft);
         }
         chatBody.scrollTop = chatBody.scrollHeight;
     }
@@ -144,7 +142,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (loadingAnimation) {
             loadingAnimation.remove();
             loadingAnimation = null;
-            console.log("DEBUG: Loading animation removed from chat-body");
+            console.log("DEBUG: Loading animation removed from current message");
         } else {
             console.error("DEBUG: Loading animation element not found in DOM");
         }
