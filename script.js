@@ -10,18 +10,23 @@ document.addEventListener("DOMContentLoaded", () => {
     let selectedFiles = [];
     let pendingSuggestion = null; // Variable, um den ausstehenden Vorschlag zu speichern
     let loadingAnimation = null; // Variable für die dynamisch erstellte Animation
+    let currentMessageEl = null; // Variable, um die aktuelle Nachricht zu speichern
 
     // Debugging: Überprüfen, ob der chat-body im DOM vorhanden ist
     console.log("DEBUG: Chat body element:", chatBody);
 
     chatToggle.onclick = () => {
+        console.log("DEBUG: Chat toggle clicked");
         if (chatWindow.style.display === "none" || !chatWindow.style.display) {
             chatWindow.style.display = "flex";
+            console.log("DEBUG: Chat window displayed");
             if (!chatBody.hasChildNodes()) {
+                console.log("DEBUG: Chat body is empty, adding welcome message");
                 addMessage("Hallo! 👋 Wie kann ich dir helfen? Falls es um deine Bestellung geht, gib bitte sowohl deine Bestellnummer als auch die E-Mail-Adresse an, mit der du bestellt hast.", "bot");
             }
         } else {
             chatWindow.style.display = "none";
+            console.log("DEBUG: Chat window hidden");
         }
     };
 
@@ -115,8 +120,12 @@ document.addEventListener("DOMContentLoaded", () => {
         // Stelle sicher, dass die Animation sichtbar ist
         loadingAnimation.style.display = 'block';
         loadingAnimation.style.visibility = 'visible';
-        // Füge die Animation in den chat-body ein
-        chatBody.appendChild(loadingAnimation);
+        // Füge die Animation direkt vor der neuen Nachricht ein
+        if (currentMessageEl) {
+            chatBody.insertBefore(loadingAnimation, currentMessageEl);
+        } else {
+            chatBody.appendChild(loadingAnimation);
+        }
         console.log("DEBUG: Loading animation added to chat-body:", loadingAnimation);
         console.log("DEBUG: Loading animation display:", loadingAnimation.style.display);
         console.log("DEBUG: Loading animation visibility:", loadingAnimation.style.visibility);
@@ -191,6 +200,10 @@ document.addEventListener("DOMContentLoaded", () => {
         formattedText = renderMarkdown(formattedText);
         messageEl.innerHTML = formattedText;
         messageEl.className = sender === "user" ? "user-message" : "bot-message";
+        // Wenn es eine Bot-Nachricht ist, speichere die Referenz für die Animation
+        if (sender === "bot") {
+            currentMessageEl = messageEl;
+        }
         chatBody.appendChild(messageEl);
         chatBody.scrollTop = chatBody.scrollHeight;
         console.log(`DEBUG: Added message to DOM: ${formattedText} (Sender: ${sender})`);
