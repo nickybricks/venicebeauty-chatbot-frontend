@@ -19,7 +19,12 @@
     <!-- Ladeanimation -->
     <div id="loading-animation" class="loading-animation">
         <svg class="wave-svg" viewBox="0 0 60 20" preserveAspectRatio="none">
-            <path class="wave-path" d="M0 10 Q 15 0, 30 10 T 60 10" fill="none" stroke="#323232" stroke-width="2"/>
+            <path class="wave-path" d="M0 10 Q 15 0, 30 10 T 60 10" fill="none" stroke="#323232" stroke-width="2">
+                <animate attributeName="d" 
+                         values="M0 10 Q 15 0, 30 10 T 60 10; M0 10 Q 15 20, 30 10 T 60 10; M0 10 Q 15 0, 30 10 T 60 10" 
+                         dur="1.5s" 
+                         repeatCount="indefinite"/>
+            </path>
         </svg>
     </div>
     <div id="chat-input-container">
