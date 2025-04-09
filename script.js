@@ -25,7 +25,14 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (!chatBody.hasChildNodes()) {
                     console.log("DEBUG: Chat body is empty, adding welcome message");
                     const welcomeMessage = "Hallo! 👋 Wie kann ich dir helfen? Falls es um deine Bestellung geht, gib bitte sowohl deine Bestellnummer als auch die E-Mail-Adresse an, mit der du bestellt hast.";
-                    addMessage(welcomeMessage, "bot");
+                    // Begrüßungsnachricht ohne Animation einfügen
+                    const messageEl = document.createElement("div");
+                    messageEl.className = "bot-message";
+                    messageEl.innerHTML = welcomeMessage;
+                    chatBody.appendChild(messageEl);
+                    chatBody.scrollTop = chatBody.scrollHeight;
+                    console.log(`DEBUG: Added welcome message to DOM: ${welcomeMessage} (Sender: bot)`);
+                    console.log("DEBUG: Welcome message position:", messageEl.offsetTop, messageEl.offsetLeft);
                 }
             }, 100); // 100ms Verzögerung
         } else {
