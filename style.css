@@ -89,6 +89,7 @@ body {
     color: #323232;
     align-self: flex-start;
     margin: 0; /* Sicherstellen, dass der Margin der bot-message 0 ist */
+    position: relative; /* Relativer Kontext für die Animation */
 }
 
 .bot-message a {
@@ -197,9 +198,7 @@ body {
 
 /* Grok-Animation (drei hüpfende Punkte) */
 .loading-animation {
-    align-self: flex-start;
-    margin: 0; /* Gleicher Margin wie bei bot-message */
-    padding: 8px 12px; /* Gleicher Padding wie bei bot-message */
+    display: inline-block; /* Inline-block, um die Animation in der Nachricht anzuzeigen */
     visibility: visible; /* Sicherstellen, dass die Animation sichtbar ist */
     line-height: 1; /* Sicherstellen, dass die vertikale Ausrichtung korrekt ist */
 }
