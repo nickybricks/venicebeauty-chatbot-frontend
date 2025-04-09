@@ -195,7 +195,7 @@ body {
     background-color: #218838;
 }
 
-/* Atom-Animation */
+/* Wellenanimation */
 .loading-animation {
     display: none; /* Standardmäßig ausgeblendet */
     align-self: flex-start;
@@ -203,46 +203,22 @@ body {
     padding: 8px 12px; /* Gleicher Padding wie bei bot-message */
 }
 
-.atom-container {
-    position: relative;
-    width: 40px;
-    height: 40px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+.wave-svg {
+    width: 60px; /* Breite der Welle */
+    height: 20px; /* Höhe der Welle */
 }
 
-.orbit {
-    position: absolute;
-    width: 30px;
-    height: 30px;
-    border: 1px solid #323232; /* Farbe der Umlaufbahn */
-    border-radius: 50%;
-    animation: rotate 3s linear infinite; /* Rotation der Umlaufbahn */
+.wave-path {
+    stroke-dasharray: 10, 10; /* Länge der Striche und Lücken */
+    stroke-dashoffset: 0;
+    animation: wave-flow 1.5s linear infinite;
 }
 
-.orbit:nth-child(2) {
-    width: 40px;
-    height: 40px;
-    animation: rotate 4s linear infinite reverse; /* Gegenläufige Rotation */
-}
-
-.electron {
-    position: absolute;
-    width: 6px;
-    height: 6px;
-    background-color: #323232; /* Farbe des Elektrons */
-    border-radius: 50%;
-    top: 0;
-    left: 50%;
-    transform: translateX(-50%);
-}
-
-@keyframes rotate {
+@keyframes wave-flow {
     0% {
-        transform: rotate(0deg);
+        stroke-dashoffset: 0;
     }
     100% {
-        transform: rotate(360deg);
+        stroke-dashoffset: -20; /* Verschiebt die Striche, um eine fließende Bewegung zu erzeugen */
     }
 }
