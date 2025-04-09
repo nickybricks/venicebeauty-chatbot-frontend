@@ -22,6 +22,7 @@ document.addEventListener("DOMContentLoaded", () => {
             console.log("DEBUG: Chat window displayed");
             // Verzögerung hinzufügen, um sicherzustellen, dass der DOM vollständig geladen ist
             setTimeout(() => {
+                console.log("DEBUG: Checking if chat body has child nodes:", chatBody.hasChildNodes());
                 if (!chatBody.hasChildNodes()) {
                     console.log("DEBUG: Chat body is empty, adding welcome message");
                     const welcomeMessage = "Hallo! 👋 Wie kann ich dir helfen? Falls es um deine Bestellung geht, gib bitte sowohl deine Bestellnummer als auch die E-Mail-Adresse an, mit der du bestellt hast.";
@@ -33,8 +34,11 @@ document.addEventListener("DOMContentLoaded", () => {
                     chatBody.scrollTop = chatBody.scrollHeight;
                     console.log(`DEBUG: Added welcome message to DOM: ${welcomeMessage} (Sender: bot)`);
                     console.log("DEBUG: Welcome message position:", messageEl.offsetTop, messageEl.offsetLeft);
+                    console.log("DEBUG: Chat body children after adding welcome message:", chatBody.children);
+                } else {
+                    console.log("DEBUG: Chat body already has child nodes:", chatBody.children);
                 }
-            }, 100); // 100ms Verzögerung
+            }, 200); // Erhöhte Verzögerung auf 200ms
         } else {
             chatWindow.style.display = "none";
             console.log("DEBUG: Chat window hidden");
