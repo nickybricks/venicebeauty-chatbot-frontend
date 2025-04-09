@@ -20,11 +20,14 @@ document.addEventListener("DOMContentLoaded", () => {
         if (chatWindow.style.display === "none" || !chatWindow.style.display) {
             chatWindow.style.display = "flex";
             console.log("DEBUG: Chat window displayed");
-            if (!chatBody.hasChildNodes()) {
-                console.log("DEBUG: Chat body is empty, adding welcome message");
-                const welcomeMessage = "Hallo! 👋 Wie kann ich dir helfen? Falls es um deine Bestellung geht, gib bitte sowohl deine Bestellnummer als auch die E-Mail-Adresse an, mit der du bestellt hast.";
-                addMessage(welcomeMessage, "bot");
-            }
+            // Verzögerung hinzufügen, um sicherzustellen, dass der DOM vollständig geladen ist
+            setTimeout(() => {
+                if (!chatBody.hasChildNodes()) {
+                    console.log("DEBUG: Chat body is empty, adding welcome message");
+                    const welcomeMessage = "Hallo! 👋 Wie kann ich dir helfen? Falls es um deine Bestellung geht, gib bitte sowohl deine Bestellnummer als auch die E-Mail-Adresse an, mit der du bestellt hast.";
+                    addMessage(welcomeMessage, "bot");
+                }
+            }, 100); // 100ms Verzögerung
         } else {
             chatWindow.style.display = "none";
             console.log("DEBUG: Chat window hidden");
