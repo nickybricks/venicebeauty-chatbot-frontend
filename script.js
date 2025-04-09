@@ -106,6 +106,11 @@ document.addEventListener("DOMContentLoaded", () => {
             console.log("DEBUG: Loading animation display:", loadingAnimation.style.display);
             console.log("DEBUG: Loading animation visibility:", loadingAnimation.style.visibility || "default (visible)");
             console.log("DEBUG: Loading animation position:", loadingAnimation.offsetTop, loadingAnimation.offsetLeft);
+            // Position der letzten Bot-Nachricht für Vergleich
+            const lastBotMessage = chatBody.querySelector(".bot-message:last-of-type");
+            if (lastBotMessage) {
+                console.log("DEBUG: Last bot message position:", lastBotMessage.offsetTop, lastBotMessage.offsetLeft);
+            }
             chatBody.scrollTop = chatBody.scrollHeight;
         } else {
             console.error("DEBUG: Loading animation element not found in DOM");
@@ -176,6 +181,8 @@ document.addEventListener("DOMContentLoaded", () => {
         chatBody.appendChild(messageEl);
         chatBody.scrollTop = chatBody.scrollHeight;
         console.log(`DEBUG: Added message to DOM: ${formattedText} (Sender: ${sender})`);
+        // Position der neuen Nachricht loggen
+        console.log("DEBUG: New message position:", messageEl.offsetTop, messageEl.offsetLeft);
         return messageEl; // Rückgabe des Elements für die Streaming-Anzeige
     }
 
