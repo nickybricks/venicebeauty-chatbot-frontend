@@ -93,13 +93,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Funktion zum Anzeigen der Ladeanimation
     function showLoadingAnimation() {
+        console.log("DEBUG: Showing loading animation");
         loadingAnimation.style.display = 'flex';
+        console.log("DEBUG: Loading animation display:", loadingAnimation.style.display);
+        console.log("DEBUG: Loading animation visibility:", loadingAnimation.style.visibility || "default (visible)");
+        console.log("DEBUG: Loading animation position:", loadingAnimation.offsetTop, loadingAnimation.offsetLeft);
         chatBody.scrollTop = chatBody.scrollHeight;
     }
 
     // Funktion zum Ausblenden der Ladeanimation
     function hideLoadingAnimation() {
+        console.log("DEBUG: Hiding loading animation");
         loadingAnimation.style.display = 'none';
+        console.log("DEBUG: Loading animation display:", loadingAnimation.style.display);
     }
 
     function uploadFiles(files, message) {
