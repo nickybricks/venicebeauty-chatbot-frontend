@@ -88,6 +88,7 @@ body {
     background-color: #fffce4;
     color: #323232;
     align-self: flex-start;
+    margin: 0; /* Sicherstellen, dass der Margin der bot-message 0 ist */
 }
 
 .bot-message a {
@@ -194,44 +195,54 @@ body {
     background-color: #218838;
 }
 
-/* Wellenanimation */
+/* Atom-Animation */
 .loading-animation {
     display: none; /* Standardmäßig ausgeblendet */
     align-self: flex-start;
-    margin: 10px 12px; /* Gleicher Abstand wie bei bot-message */
-    padding: 8px 0; /* Gleicher vertikaler Padding wie bei bot-message */
+    margin: 0; /* Gleicher Margin wie bei bot-message */
+    padding: 8px 12px; /* Gleicher Padding wie bei bot-message */
 }
 
-.wave-container {
+.atom-container {
+    position: relative;
+    width: 40px;
+    height: 40px;
     display: flex;
+    justify-content: center;
     align-items: center;
-    height: 16px; /* Höhe der Wellenanimation */
-    width: 30px; /* Sicherstellen, dass der Container eine Breite hat */
 }
 
-.wave {
-    display: inline-block; /* Sicherstellen, dass die Wellen sichtbar sind */
-    width: 4px;
-    height: 16px;
-    background-color: #323232; /* Farbe passend zum Bot-Text */
-    margin: 0 2px;
-    border-radius: 2px;
-    animation: wave 1.2s infinite ease-in-out;
+.orbit {
+    position: absolute;
+    width: 30px;
+    height: 30px;
+    border: 1px solid #323232; /* Farbe der Umlaufbahn */
+    border-radius: 50%;
+    animation: rotate 3s linear infinite; /* Rotation der Umlaufbahn */
 }
 
-.wave:nth-child(2) {
-    animation-delay: 0.2s;
+.orbit:nth-child(2) {
+    width: 40px;
+    height: 40px;
+    animation: rotate 4s linear infinite reverse; /* Gegenläufige Rotation */
 }
 
-.wave:nth-child(3) {
-    animation-delay: 0.4s;
+.electron {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    background-color: #323232; /* Farbe des Elektrons */
+    border-radius: 50%;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
 }
 
-@keyframes wave {
-    0%, 100% {
-        transform: scaleY(0.3);
+@keyframes rotate {
+    0% {
+        transform: rotate(0deg);
     }
-    50% {
-        transform: scaleY(1);
+    100% {
+        transform: rotate(360deg);
     }
 }
