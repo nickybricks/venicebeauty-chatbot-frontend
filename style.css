@@ -195,7 +195,7 @@ body {
     background-color: #218838;
 }
 
-/* Wellenanimation */
+/* Grok-Animation (drei hüpfende Punkte) */
 .loading-animation {
     display: none; /* Standardmäßig ausgeblendet */
     align-self: flex-start;
@@ -203,12 +203,39 @@ body {
     padding: 8px 12px; /* Gleicher Padding wie bei bot-message */
 }
 
-.wave-svg {
-    width: 60px; /* Breite der Welle */
-    height: 20px; /* Höhe der Welle */
+.grok-dots {
+    display: flex;
+    align-items: center;
+    height: 20px; /* Höhe der Animation */
 }
 
-.wave-path {
-    /* Keine stroke-dasharray, um eine durchgehende Linie zu erzeugen */
-    stroke-linecap: round; /* Abgerundete Enden der Linie */
+.dot {
+    display: inline-block;
+    width: 6px; /* Größe der Punkte */
+    height: 6px;
+    background-color: #323232; /* Farbe passend zum Bot-Text */
+    border-radius: 50%;
+    margin: 0 2px; /* Abstand zwischen den Punkten */
+    animation: grok-bounce 1.2s infinite ease-in-out;
+}
+
+.dot:nth-child(1) {
+    animation-delay: -0.24s; /* Verzögerung für den ersten Punkt */
+}
+
+.dot:nth-child(2) {
+    animation-delay: -0.12s; /* Verzögerung für den zweiten Punkt */
+}
+
+.dot:nth-child(3) {
+    animation-delay: 0s; /* Keine Verzögerung für den dritten Punkt */
+}
+
+@keyframes grok-bounce {
+    0%, 100% {
+        transform: translateY(0); /* Start- und Endposition */
+    }
+    50% {
+        transform: translateY(-6px); /* Hüpfen nach oben */
+    }
 }
