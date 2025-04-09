@@ -132,9 +132,6 @@ document.addEventListener("DOMContentLoaded", () => {
         .catch((error) => {
             console.error("DEBUG: Upload error:", error);
             addMessage("Fehler bei der Verbindung zum Server.", "bot");
-        })
-        .finally(() => {
-            hideLoadingAnimation();
         });
     }
 
@@ -186,6 +183,7 @@ document.addEventListener("DOMContentLoaded", () => {
             if (!response.ok) {
                 console.error(`DEBUG: Fetch error: ${response.status} ${response.statusText}`);
                 addMessage("Fehler bei der Verbindung zum Server.", "bot");
+                hideLoadingAnimation();
                 return;
             }
     
@@ -198,6 +196,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 let messageEl = addMessage("", "bot"); // Erstelle ein leeres Nachrichtenelement
                 let fullMessage = "";
                 let buffer = []; // Buffer für Chunks
+                let isFirstChunk = true; // Flag, um den ersten Chunk zu erkennen
     
                 while (true) {
                     const { done, value } = await reader.read();
@@ -218,6 +217,11 @@ document.addEventListener("DOMContentLoaded", () => {
                             try {
                                 const data = JSON.parse(line.replace("data: ", ""));
                                 if (data.content) {
+                                    // Sobald der erste Chunk empfangen wird, Ladeanimation ausblenden
+                                    if (isFirstChunk) {
+                                        hideLoadingAnimation();
+                                        isFirstChunk = false;
+                                    }
                                     buffer.push(data.content);
                                 }
                                 if (data.full_response) {
@@ -268,15 +272,14 @@ document.addEventListener("DOMContentLoaded", () => {
                 console.log("DEBUG: Response is not an event-stream, treating as text/plain");
                 const text = await response.text();
                 console.log(`DEBUG: Received text response: ${text}`);
+                hideLoadingAnimation();
                 addMessage(text, "bot");
                 chatHistory.push({ sender: "bot", message: text });
             }
         } catch (error) {
             console.error(`DEBUG: Fetch error: ${error}`);
-            addMessage("Fehler bei der Verbindung zum Server.", "bot");
-        }
-        finally {
             hideLoadingAnimation();
+            addMessage("Fehler bei der Verbindung zum Server.", "bot");
         }
     }
 
