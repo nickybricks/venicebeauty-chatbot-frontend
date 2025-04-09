@@ -197,7 +197,6 @@ body {
 
 /* Grok-Animation (drei hüpfende Punkte) */
 .loading-animation {
-    display: none; /* Standardmäßig ausgeblendet */
     align-self: flex-start;
     margin: 0; /* Gleicher Margin wie bei bot-message */
     padding: 8px 12px; /* Gleicher Padding wie bei bot-message */
