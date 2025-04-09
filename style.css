@@ -195,3 +195,37 @@ body {
 .floating-suggestion-button:hover {
     background-color: #218838;
 }
+
+/* Ladeanimation mit drei Punkten */
+.loading-animation {
+    display: none; /* Standardmäßig ausgeblendet */
+    align-self: flex-start;
+    margin: 10px 15px;
+}
+
+.loading-animation .dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    background-color: #323232; /* Farbe passend zum Bot-Text */
+    border-radius: 50%;
+    margin: 0 2px;
+    animation: dot-bounce 1.4s infinite ease-in-out both;
+}
+
+.loading-animation .dot:nth-child(1) {
+    animation-delay: -0.32s;
+}
+
+.loading-animation .dot:nth-child(2) {
+    animation-delay: -0.16s;
+}
+
+@keyframes dot-bounce {
+    0%, 80%, 100% {
+        transform: scale(0);
+    }
+    40% {
+        transform: scale(1);
+    }
+}
