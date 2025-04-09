@@ -8,43 +8,25 @@ document.addEventListener("DOMContentLoaded", () => {
     const fileInput = document.getElementById("file-input");
     let chatHistory = [];
     let selectedFiles = [];
-    let pendingSuggestion = null;
-    let loadingAnimation = null;
-    let currentMessageEl = null;
+    let pendingSuggestion = null; // Variable, um den ausstehenden Vorschlag zu speichern
+    let loadingAnimation = null; // Variable für die dynamisch erstellte Animation
+    let currentMessageEl = null; // Variable, um die aktuelle Nachricht zu speichern
 
-    // Supabase-Client initialisieren
-    const SUPABASE_URL = 'https://fjezzwlgkxywgzvwqrcp.supabase.co'; // Ersetze mit deiner Supabase Project URL
-    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZqZXp6d2xna3h5d2d6dndxcmNwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQyMTM1NzUsImV4cCI6MjA1OTc4OTU3NX0.4-kjgklue8J4EIe2sllcsPvRuE__gX3CxWnx3nHqS80'; // Ersetze mit deinem Supabase API Key
-    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-    // Funktion zum Senden von Tracking-Events an Supabase
-    async function trackEvent(eventType, metadata = {}) {
-        const userId = localStorage.getItem("userId") || crypto.randomUUID();
-        localStorage.setItem("userId", userId);
-        const { data, error } = await supabase
-            .from('chat_events')
-            .insert([
-                { event_type: eventType, user_id: userId, metadata: metadata }
-            ]);
-        if (error) {
-            console.error(`DEBUG: Error tracking event ${eventType}:`, error);
-        } else {
-            console.log(`DEBUG: Tracked event ${eventType}:`, data);
-        }
-    }
+    // Debugging: Überprüfen, ob der chat-body im DOM vorhanden ist
+    console.log("DEBUG: Chat body element:", chatBody);
 
     chatToggle.onclick = () => {
         console.log("DEBUG: Chat toggle clicked");
         if (chatWindow.style.display === "none" || !chatWindow.style.display) {
             chatWindow.style.display = "flex";
             console.log("DEBUG: Chat window displayed");
-            // Tracking-Event für chat_opened
-            trackEvent('chat_opened');
+            // Verzögerung hinzufügen, um sicherzustellen, dass der DOM vollständig geladen ist
             setTimeout(() => {
                 console.log("DEBUG: Checking if chat body has child nodes:", chatBody.hasChildNodes());
                 if (!chatBody.hasChildNodes()) {
                     console.log("DEBUG: Chat body is empty, adding welcome message");
                     const welcomeMessage = "Hallo! 👋 Wie kann ich dir helfen? Falls es um deine Bestellung geht, gib bitte sowohl deine Bestellnummer als auch die E-Mail-Adresse an, mit der du bestellt hast.";
+                    // Begrüßungsnachricht ohne Animation einfügen
                     const messageEl = document.createElement("div");
                     messageEl.className = "bot-message";
                     messageEl.innerHTML = welcomeMessage;
@@ -56,7 +38,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 } else {
                     console.log("DEBUG: Chat body already has child nodes:", chatBody.children);
                 }
-            }, 200);
+            }, 200); // Erhöhte Verzögerung auf 200ms
         } else {
             chatWindow.style.display = "none";
             console.log("DEBUG: Chat window hidden");
@@ -78,18 +60,18 @@ document.addEventListener("DOMContentLoaded", () => {
             if (textContent) {
                 addMessage(textContent, "user");
                 chatHistory.push({ sender: "user", message: textContent });
-                // Tracking-Event für message_sent
-                trackEvent('message_sent', { message: textContent });
+                // Ladeanimation anzeigen und Anfrage verzögern
                 showLoadingAnimation();
                 setTimeout(() => {
                     fetchResponse(textContent);
-                }, 2000);
+                }, 2000); // 2 Sekunden Verzögerung
             }
             if (selectedFiles.length > 0) {
+                // Ladeanimation anzeigen und Anfrage verzögern
                 showLoadingAnimation();
                 setTimeout(() => {
                     uploadFiles(selectedFiles, textContent);
-                }, 2000);
+                }, 2000); // 2 Sekunden Verzögerung
             }
             selectedFiles = [];
             fileInput.value = "";
@@ -132,11 +114,14 @@ document.addEventListener("DOMContentLoaded", () => {
         updateInputField();
     };
 
+    // Funktion zum Anzeigen der Ladeanimation
     function showLoadingAnimation() {
         console.log("DEBUG: Showing loading animation");
+        // Entferne die vorherige Animation, falls vorhanden
         if (loadingAnimation) {
             loadingAnimation.remove();
         }
+        // Erstelle die Ladeanimation dynamisch
         loadingAnimation = document.createElement("div");
         loadingAnimation.id = "loading-animation";
         loadingAnimation.className = "loading-animation";
@@ -147,13 +132,15 @@ document.addEventListener("DOMContentLoaded", () => {
                 <span class="dot"></span>
             </div>
         `;
+        // Stelle sicher, dass die Animation sichtbar ist
         loadingAnimation.style.display = 'inline-block';
         loadingAnimation.style.visibility = 'visible';
+        // Erstelle eine neue Bot-Nachricht für die Animation
         const messageEl = document.createElement("div");
         messageEl.className = "bot-message";
         messageEl.appendChild(loadingAnimation);
         chatBody.appendChild(messageEl);
-        currentMessageEl = messageEl;
+        currentMessageEl = messageEl; // Setze die aktuelle Nachricht
         console.log("DEBUG: Loading animation added to new bot message:", loadingAnimation);
         console.log("DEBUG: Loading animation display:", loadingAnimation.style.display);
         console.log("DEBUG: Loading animation visibility:", loadingAnimation.style.visibility);
@@ -162,6 +149,7 @@ document.addEventListener("DOMContentLoaded", () => {
         chatBody.scrollTop = chatBody.scrollHeight;
     }
 
+    // Funktion zum Ausblenden der Ladeanimation
     function hideLoadingAnimation() {
         console.log("DEBUG: Hiding loading animation");
         if (loadingAnimation) {
@@ -180,8 +168,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
         formData.append("email", localStorage.getItem("userEmail"));
         formData.append("message", message);
-        // Tracking-Event für file_uploaded
-        trackEvent('file_uploaded', { file_count: files.length });
+
         fetch("https://ki-chatbot-13ko.onrender.com/upload", {
             method: "POST",
             body: formData
@@ -207,64 +194,71 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
+    // Funktion zum Umwandeln von Markdown-Links und fetten Text
     function renderMarkdown(text) {
+        // Ersetze Markdown-Links [Text](URL) durch <a href="URL">Text</a>
         let formattedText = text.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank">$1</a>');
+        // Ersetze Markdown-Syntax für fetten Text **Text** durch <b>Text</b>
         formattedText = formattedText.replace(/\*\*([^\*]+)\*\*/g, '<b>$1</b>');
         return formattedText;
     }
 
     function addMessage(text, sender) {
         const messageEl = document.createElement("div");
+        // Ersetze \n\n durch <br><br> für Absätze und \n durch <br> für Aufzählungszeichen
         let formattedText = text.replace(/\n\n/g, "<br><br>").replace(/\n/g, "<br>");
+        // Wandle Markdown-Links und fetten Text in HTML um
         formattedText = renderMarkdown(formattedText);
         messageEl.innerHTML = formattedText;
         messageEl.className = sender === "user" ? "user-message" : "bot-message";
         chatBody.appendChild(messageEl);
         chatBody.scrollTop = chatBody.scrollHeight;
         console.log(`DEBUG: Added message to DOM: ${formattedText} (Sender: ${sender})`);
+        // Position der neuen Nachricht loggen
         console.log("DEBUG: New message position:", messageEl.offsetTop, messageEl.offsetLeft);
-        return messageEl;
+        return messageEl; // Rückgabe des Elements für die Streaming-Anzeige
     }
 
     async function fetchResponse(message) {
+        // Extrahiere E-Mail-Adresse aus der aktuellen Nachricht, falls vorhanden
         let email = null;
         if (message.includes("@") && message.includes(".")) {
             const emailMatch = message.match(/[\w\.-]+@[\w\.-]+\.\w+/);
             if (emailMatch) {
                 email = emailMatch[0];
-                localStorage.setItem("userEmail", email);
+                localStorage.setItem("userEmail", email);  // Speichere die E-Mail-Adresse für zukünftige Nutzung
             }
         }
- 
+    
         try {
             const response = await fetch("https://ki-chatbot-13ko.onrender.com/chat", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     message: message,
-                    email: email,
+                    email: email,  // Sende nur die E-Mail-Adresse, die in der aktuellen Nachricht enthalten ist
                     chatHistory: chatHistory
                 })
             });
- 
+    
             if (!response.ok) {
                 console.error(`DEBUG: Fetch error: ${response.status} ${response.statusText}`);
                 addMessage("Fehler bei der Verbindung zum Server.", "bot");
                 hideLoadingAnimation();
                 return;
             }
- 
+    
             const contentType = response.headers.get("content-type");
             console.log(`DEBUG: Response content-type: ${contentType}`);
- 
+    
             if (contentType && contentType.includes("text/event-stream")) {
                 const reader = response.body.getReader();
                 const decoder = new TextDecoder();
-                let messageEl = currentMessageEl;
+                let messageEl = currentMessageEl; // Verwende die aktuelle Nachricht, die bereits für die Animation erstellt wurde
                 let fullMessage = "";
-                let buffer = [];
-                let isFirstChunk = true;
- 
+                let buffer = []; // Buffer für Chunks
+                let isFirstChunk = true; // Flag, um den ersten Chunk zu erkennen
+    
                 while (true) {
                     const { done, value } = await reader.read();
                     if (done) {
@@ -273,36 +267,9 @@ document.addEventListener("DOMContentLoaded", () => {
                             console.error("DEBUG: Stream completed with no response");
                             addMessage("Es tut mir leid, ich konnte keine Antwort generieren. Bitte versuche es erneut.", "bot");
                         }
-                        // Zeige NPS-Umfrage nach der Interaktion
-                        setTimeout(() => {
-                            const npsSurvey = document.createElement("div");
-                            npsSurvey.innerHTML = `
-                                <p>Wie wahrscheinlich ist es, dass Sie unseren Chatbot weiterempfehlen? (0-10)</p>
-                                <input type="number" id="nps-score" min="0" max="10">
-                                <button onclick="submitNps()">Absenden</button>
-                            `;
-                            chatBody.appendChild(npsSurvey);
-                        }, 1000);
-                        // Zeige Umfrage nach der Interaktion
-                        setTimeout(() => {
-                            const surveyForm = document.createElement("div");
-                            surveyForm.innerHTML = `
-                                <p>Wir würden gerne Ihr Feedback zum Bot hören!</p>
-                                <label>Wie zufrieden sind Sie mit dem Bot? (1-5):</label>
-                                <input type="number" id="survey-satisfaction" min="1" max="5"><br>
-                                <label>Was gefällt Ihnen am besten?</label>
-                                <textarea id="survey-best-feature"></textarea><br>
-                                <label>Welche Schwierigkeiten hatten Sie?</label>
-                                <textarea id="survey-difficulties"></textarea><br>
-                                <label>Vorschläge zur Verbesserung:</label>
-                                <textarea id="survey-suggestions"></textarea><br>
-                                <button onclick="submitSurvey()">Absenden</button>
-                            `;
-                            chatBody.appendChild(surveyForm);
-                        }, 1500);
                         break;
                     }
- 
+    
                     const chunk = decoder.decode(value);
                     console.log(`DEBUG: Received chunk: ${chunk}`);
                     const lines = chunk.split("\n\n");
@@ -311,6 +278,7 @@ document.addEventListener("DOMContentLoaded", () => {
                             try {
                                 const data = JSON.parse(line.replace("data: ", ""));
                                 if (data.content) {
+                                    // Sobald der erste Chunk empfangen wird, Ladeanimation ausblenden
                                     if (isFirstChunk) {
                                         hideLoadingAnimation();
                                         isFirstChunk = false;
@@ -319,6 +287,7 @@ document.addEventListener("DOMContentLoaded", () => {
                                 }
                                 if (data.full_response) {
                                     fullMessage = data.full_response;
+                                    // Entferne den Button-Text vollständig aus der Nachricht
                                     fullMessage = fullMessage.replace(/\[suggestion_button:[^\]]+\]/g, "").trim();
                                     fullMessage = fullMessage.replace(/\[Ja, bitte stornieren\]/g, "").trim();
                                     messageEl.innerHTML = renderMarkdown(fullMessage.replace(/\n\n/g, "<br><br>").replace(/\n/g, "<br>"));
@@ -326,8 +295,8 @@ document.addEventListener("DOMContentLoaded", () => {
                                     console.log(`DEBUG: Full response received: ${fullMessage}`);
                                     if (data.suggestion) {
                                         console.log("DEBUG: Suggestion received from server:", data.suggestion);
-                                        pendingSuggestion = data.suggestion;
-                                        showSuggestionButton(data.suggestion);
+                                        pendingSuggestion = data.suggestion; // Speichere den Vorschlag
+                                        showSuggestionButton(data.suggestion); // Zeige den Button oberhalb des Eingabefelds
                                     } else {
                                         console.log("DEBUG: No suggestion found in response");
                                     }
@@ -337,11 +306,13 @@ document.addEventListener("DOMContentLoaded", () => {
                             }
                         }
                     }
- 
+    
+                    // Verarbeite den Buffer mit Verzögerung
                     let currentText = fullMessage;
                     while (buffer.length > 0) {
                         const content = buffer.shift();
                         currentText += content;
+                        // Prüfe, ob ein Markdown-Link im aktuellen Text vorhanden ist
                         const linkMatch = currentText.match(/\[([^\]]+)\]\(([^)]+)\)/);
                         if (linkMatch) {
                             const beforeLink = currentText.substring(0, linkMatch.index);
@@ -349,14 +320,16 @@ document.addEventListener("DOMContentLoaded", () => {
                             const afterLink = currentText.substring(linkMatch.index + linkMatch[0].length);
                             currentText = beforeLink + linkText + afterLink;
                         }
+                        // Wandle den restlichen Text in HTML um
                         currentText = renderMarkdown(currentText.replace(/\n\n/g, "<br><br>").replace(/\n/g, "<br>"));
                         messageEl.innerHTML = currentText;
                         chatBody.scrollTop = chatBody.scrollHeight;
-                        await new Promise(resolve => setTimeout(resolve, 50));
+                        await new Promise(resolve => setTimeout(resolve, 50)); // Verzögerung von 50ms pro Chunk
                     }
                     fullMessage = currentText;
                 }
             } else {
+                // Fallback für text/plain Antworten
                 console.log("DEBUG: Response is not an event-stream, treating as text/plain");
                 const text = await response.text();
                 console.log(`DEBUG: Received text response: ${text}`);
@@ -372,11 +345,14 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function showSuggestionButton(suggestionText) {
+        // Entferne vorhandene Suggestion-Buttons
         const existingButton = document.querySelector(".suggestion-button");
         if (existingButton) {
             console.log("DEBUG: Removing existing suggestion button");
             existingButton.remove();
         }
+    
+        // Erstelle einen neuen Button
         const button = document.createElement("button");
         button.textContent = suggestionText;
         button.className = "suggestion-button";
@@ -384,19 +360,16 @@ document.addEventListener("DOMContentLoaded", () => {
             console.log("DEBUG: Suggestion button clicked:", suggestionText);
             addMessage(suggestionText, "user");
             chatHistory.push({ sender: "user", message: suggestionText });
-            // Tracking-Event für suggestion_button_clicked
-            trackEvent('suggestion_button_clicked', { suggestion: suggestionText });
-            if (suggestionText === "Ja, erstelle ein Support Ticket") {
-                // Tracking-Event für support_ticket_created
-                trackEvent('support_ticket_created');
-            }
-            button.remove();
-            pendingSuggestion = null;
+            button.remove(); // Entferne den Button nach dem Klick
+            pendingSuggestion = null; // Setze den ausstehenden Vorschlag zurück
+            // Ladeanimation anzeigen und Anfrage verzögern
             showLoadingAnimation();
             setTimeout(() => {
                 fetchResponse(suggestionText);
-            }, 2000);
+            }, 2000); // 2 Sekunden Verzögerung
         };
+    
+        // Füge den Button oberhalb des Eingabefelds hinzu
         const chatInputContainer = document.querySelector("#chat-input-container");
         if (!chatInputContainer) {
             console.error("DEBUG: chat-input-container not found in DOM");
@@ -408,56 +381,4 @@ document.addEventListener("DOMContentLoaded", () => {
         console.log("DEBUG: Button position:", button.offsetTop, button.offsetLeft);
         console.log("DEBUG: Button parent:", button.parentNode);
     }
-
-    // Funktion zum Senden der NPS-Bewertung
-    window.submitNps = async () => {
-        const npsScore = document.getElementById("nps-score").value;
-        const userId = localStorage.getItem("userId");
-        const { data, error } = await supabase
-            .from('nps_scores')
-            .insert([
-                { user_id: userId, score: parseInt(npsScore) }
-            ]);
-        if (error) {
-            console.error("DEBUG: Error submitting NPS score:", error);
-        } else {
-            console.log("DEBUG: NPS score submitted:", data);
-            trackEvent('nps_submitted', { score: parseInt(npsScore) });
-        }
-        alert("Vielen Dank für Ihre Bewertung!");
-        document.getElementById("nps-score").parentElement.remove();
-    };
-
-    // Funktion zum Senden der Umfrageantworten
-    window.submitSurvey = async () => {
-        const satisfaction = document.getElementById("survey-satisfaction").value;
-        const bestFeature = document.getElementById("survey-best-feature").value;
-        const difficulties = document.getElementById("survey-difficulties").value;
-        const suggestions = document.getElementById("survey-suggestions").value;
-        const userId = localStorage.getItem("userId");
-        const { data, error } = await supabase
-            .from('user_surveys')
-            .insert([
-                {
-                    user_id: userId,
-                    satisfaction: parseInt(satisfaction),
-                    best_feature: bestFeature,
-                    difficulties: difficulties,
-                    suggestions: suggestions
-                }
-            ]);
-        if (error) {
-            console.error("DEBUG: Error submitting survey:", error);
-        } else {
-            console.log("DEBUG: Survey submitted:", data);
-            trackEvent('survey_submitted', {
-                satisfaction: parseInt(satisfaction),
-                best_feature: bestFeature,
-                difficulties: difficulties,
-                suggestions: suggestions
-            });
-        }
-        alert("Vielen Dank für Ihr Feedback!");
-        document.getElementById("survey-satisfaction").parentElement.remove();
-    };
 });
