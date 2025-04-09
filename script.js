@@ -131,19 +131,17 @@ document.addEventListener("DOMContentLoaded", () => {
         // Stelle sicher, dass die Animation sichtbar ist
         loadingAnimation.style.display = 'inline-block';
         loadingAnimation.style.visibility = 'visible';
-        // Füge die Animation in die aktuelle Nachricht ein
-        if (currentMessageEl) {
-            currentMessageEl.innerHTML = ''; // Leere die Nachricht, um sicherzustellen, dass die Animation zuerst angezeigt wird
-            currentMessageEl.appendChild(loadingAnimation);
-        }
-        console.log("DEBUG: Loading animation added to current message:", loadingAnimation);
+        // Erstelle eine neue Bot-Nachricht für die Animation
+        const messageEl = document.createElement("div");
+        messageEl.className = "bot-message";
+        messageEl.appendChild(loadingAnimation);
+        chatBody.appendChild(messageEl);
+        currentMessageEl = messageEl; // Setze die aktuelle Nachricht
+        console.log("DEBUG: Loading animation added to new bot message:", loadingAnimation);
         console.log("DEBUG: Loading animation display:", loadingAnimation.style.display);
         console.log("DEBUG: Loading animation visibility:", loadingAnimation.style.visibility);
         console.log("DEBUG: Loading animation position:", loadingAnimation.offsetTop, loadingAnimation.offsetLeft);
-        // Position der aktuellen Nachricht für Vergleich
-        if (currentMessageEl) {
-            console.log("DEBUG: Current message position:", currentMessageEl.offsetTop, currentMessageEl.offsetLeft);
-        }
+        console.log("DEBUG: Current message position:", messageEl.offsetTop, messageEl.offsetLeft);
         chatBody.scrollTop = chatBody.scrollHeight;
     }
 
@@ -209,10 +207,6 @@ document.addEventListener("DOMContentLoaded", () => {
         formattedText = renderMarkdown(formattedText);
         messageEl.innerHTML = formattedText;
         messageEl.className = sender === "user" ? "user-message" : "bot-message";
-        // Wenn es eine Bot-Nachricht ist, speichere die Referenz für die Animation
-        if (sender === "bot") {
-            currentMessageEl = messageEl;
-        }
         chatBody.appendChild(messageEl);
         chatBody.scrollTop = chatBody.scrollHeight;
         console.log(`DEBUG: Added message to DOM: ${formattedText} (Sender: ${sender})`);
@@ -256,7 +250,7 @@ document.addEventListener("DOMContentLoaded", () => {
             if (contentType && contentType.includes("text/event-stream")) {
                 const reader = response.body.getReader();
                 const decoder = new TextDecoder();
-                let messageEl = addMessage("", "bot"); // Erstelle ein leeres Nachrichtenelement
+                let messageEl = currentMessageEl; // Verwende die aktuelle Nachricht, die bereits für die Animation erstellt wurde
                 let fullMessage = "";
                 let buffer = []; // Buffer für Chunks
                 let isFirstChunk = true; // Flag, um den ersten Chunk zu erkennen
