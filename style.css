@@ -201,12 +201,14 @@ body {
     align-self: flex-start;
     margin: 0; /* Gleicher Margin wie bei bot-message */
     padding: 8px 12px; /* Gleicher Padding wie bei bot-message */
+    visibility: visible; /* Sicherstellen, dass die Animation sichtbar ist */
 }
 
 .grok-dots {
     display: flex;
     align-items: center;
     height: 20px; /* Höhe der Animation */
+    width: 30px; /* Sicherstellen, dass der Container eine Breite hat */
 }
 
 .dot {
