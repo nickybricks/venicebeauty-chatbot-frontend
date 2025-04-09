@@ -209,16 +209,6 @@ body {
 }
 
 .wave-path {
-    stroke-dasharray: 10, 10; /* Länge der Striche und Lücken */
-    stroke-dashoffset: 0;
-    animation: wave-flow 1.5s linear infinite;
-}
-
-@keyframes wave-flow {
-    0% {
-        stroke-dashoffset: 0;
-    }
-    100% {
-        stroke-dashoffset: -20; /* Verschiebt die Striche, um eine fließende Bewegung zu erzeugen */
-    }
+    /* Keine stroke-dasharray, um eine durchgehende Linie zu erzeugen */
+    stroke-linecap: round; /* Abgerundete Enden der Linie */
 }
