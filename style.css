@@ -91,6 +91,7 @@ body {
     margin: 0; /* Sicherstellen, dass der Margin der bot-message 0 ist */
     position: relative; /* Relativer Kontext für die Animation */
     display: inline-block; /* Inline-block, um die Nachricht korrekt anzuzeigen */
+    visibility: visible; /* Sicherstellen, dass die Nachricht sichtbar ist */
 }
 
 .bot-message a {
